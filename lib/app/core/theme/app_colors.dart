@@ -44,4 +44,24 @@ class AppColors {
   static const Color navInactive = Color(0xFF9CA3AF);
   static const Color shieldWatermark = Color(0xFFD9D9E8);
   static const Color imagePlaceholder = Color(0xFFEDEDF2);
+
+  // Cards, pills & lists
+  static const Color darkCard = Color(0xFF3B4470);
+  static const LinearGradient darkCardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF464F86), Color(0xFF333B61)],
+  );
+  static const Color onDarkCard = Color(0xFFFFFFFF);
+  static const Color onDarkCardMuted = Color(0xFFB7BCD8);
+  static const Color onDarkCardDivider = Color(0x33FFFFFF);
+
+  static const Color summaryBoxBg = Color(0xFFF3F4FA);
+  static const Color pillBg = Color(0xFFEDEEF6);
+  static const Color verifiedFundBg = Color(0xFFDDF3E6);
+  static const Color progressTrack = Color(0xFFE5E7EB);
+  static const Color sectionLabel = Color(0xFF9CA3AF);
+
+  // Destructive
+  static const Color danger = Color(0xFFDC2626);
 }

@@ -10,7 +10,9 @@ import '../core/theme/app_colors.dart';
 /// Material progress indicators can trigger during the semantics flush.
 class DonationProgressBar extends StatelessWidget {
   final double value;
-  const DonationProgressBar({super.key, required this.value});
+  final Color? color;
+
+  const DonationProgressBar({super.key, required this.value, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +22,12 @@ class DonationProgressBar extends StatelessWidget {
       child: Container(
         height: 6.h,
         width: double.infinity,
-        color: AppColors.border,
+        color: AppColors.progressTrack,
         child: Align(
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(
             widthFactor: clamped,
-            child: Container(color: AppColors.primary),
+            child: Container(color: color ?? AppColors.primary),
           ),
         ),
       ),
