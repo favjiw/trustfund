@@ -1,193 +1,161 @@
-# TrustFund
+# TrustFund 🛡️
 
-TrustFund adalah aplikasi mobile **galang dana & donasi (crowdfunding sosial)**
-yang dibangun dengan Flutter. Aplikasi ini menampilkan daftar kampanye amal,
-detail kampanye lengkap dengan rincian penggunaan dana, alur donasi, hingga
-pelacakan penyaluran dana — dengan fokus pada **kepercayaan dan transparansi**
-(tercermin dari logo perisai + tangan yang memegang hati).
+**Platform crowdfunding berbasis Blockchain & AI khusus untuk yayasan resmi terdaftar di Indonesia.**
 
-> Catatan: Versi ini adalah **prototipe UI/UX**. Seluruh data masih bersifat
-> contoh (dummy) dan belum terhubung ke server/backend sungguhan.
+> Dikembangkan oleh tim **NexTrust** (ID Peserta **S0261**) untuk **Digdaya x Hackathon BI 2026**.
 
 ---
 
-## Daftar Isi
-- [Fitur Utama](#fitur-utama)
-- [Teknologi yang Digunakan](#teknologi-yang-digunakan)
-- [Struktur Proyek](#struktur-proyek)
-- [Cara Menjalankan](#cara-menjalankan)
-- [Panduan Demo](#panduan-demo)
-- [Akun Login Demo](#akun-login-demo)
-- [Ikon Aplikasi (Launcher Icon)](#ikon-aplikasi-launcher-icon)
-- [Batasan Saat Ini](#batasan-saat-ini)
+## 1. Tentang TrustFund
+
+Donasi online di Indonesia tumbuh pesat, tetapi kepercayaan publik kerap tergerus oleh kasus **penyalahgunaan dana** dan **penggalangan dana fiktif**. Donatur sulit memastikan apakah uang mereka benar-benar sampai ke penerima manfaat, dan lembaga yang jujur ikut terkena dampak menurunnya kepercayaan.
+
+**TrustFund** hadir sebagai jawabannya: sebuah platform donasi yang **hanya** dapat digunakan oleh **yayasan yang sudah berbadan hukum dan terdaftar resmi di Kemenkumham**, dengan dua pilar utama:
+
+1. **🔗 Transparansi Blockchain (Polygon)** — Setiap aliran dana dicatat secara permanen dan dapat diaudit publik. Dana donasi **dikunci di Smart Contract (escrow)** dan hanya cair secara bertahap mengikuti pencapaian *milestone*.
+2. **🤖 AI Document Fraud Detection** — Dokumen yayasan, proposal, dan **Rencana Anggaran Biaya (RAB)** divalidasi oleh AI untuk mendeteksi indikasi pemalsuan dokumen dan kewajaran biaya sebelum kampanye tayang dan sebelum dana dicairkan.
+
+Hasilnya: donatur dapat berdonasi dengan tenang karena setiap rupiah **transparan, terlacak, dan tervalidasi**.
 
 ---
 
-## Fitur Utama
+## 2. Fitur Utama
 
-- **Splash screen** dengan logo TrustFund.
-- **Autentikasi (UI)**: halaman Login, Register, Lupa Kata Sandi, OTP, dan
-  Reset Kata Sandi.
-- **Beranda (Home)**: sapaan pengguna, kampanye populer, dan kampanye mendesak.
-- **Daftar Kampanye**: jelajah seluruh kampanye dengan **pengurutan** (terbaru,
-  donasi terbanyak, segera berakhir) melalui bottom sheet.
-- **Simpan Kampanye (Bookmark)**: tandai/lepas kampanye favorit. Status
-  tersimpan tersinkron secara langsung di semua kartu, halaman detail, dan tab
-  "Tersimpan".
-- **Detail Kampanye**: progres donasi, rincian anggaran (RAB), milestone, dan
-  informasi penggalang dana.
-- **Alur Donasi**: pilih nominal & metode pembayaran → instruksi pembayaran →
-  halaman sukses → pelacakan penyaluran dana (track donation).
-- **Profil**: identitas pengguna, ringkasan dampak donasi, serta menu akun.
-- **Popup "Segera Hadir"**: fitur yang belum dibangun menampilkan dialog
-  terpadu, sehingga tidak ada tombol yang "mati".
+| Fitur | Deskripsi |
+|-------|-----------|
+| 🔐 **Autentikasi** | Login, daftar akun, lupa kata sandi, verifikasi OTP, dan reset kata sandi. |
+| 🏠 **Beranda (Home)** | Kampanye mendesak & terverifikasi, kampanye populer, kategori, serta statistik dampak platform. |
+| 📋 **Kampanye** | Daftar seluruh kampanye yang dapat ditelusuri donatur. |
+| 📄 **Detail Kampanye** | Menampilkan data kampanye sesuai item yang diklik: deskripsi, **RAB**, **milestone**, donatur, *trust score*, dan status verifikasi. |
+| 💸 **Alur Donasi** | Pilih nominal & metode pembayaran → instruksi pembayaran → konfirmasi donasi berhasil. |
+| 🧾 **Donasi Berhasil** | Bukti donasi lengkap dengan **transaction hash on-chain** dan status dana terkunci di escrow. |
+| 📊 **Lacak Donasi** | Memantau pencairan dana per milestone secara bertahap (real-time tracking). |
+| 🔖 **Tersimpan** | Menyimpan/bookmark kampanye favorit. |
+| 👤 **Profil** | Halaman akun pengguna. |
 
 ---
 
-## Teknologi yang Digunakan
+## 3. Teknologi & Arsitektur
 
-| Kategori           | Teknologi / Paket                                   |
-|--------------------|-----------------------------------------------------|
-| Framework          | **Flutter** (Dart SDK `^3.11.0`)                    |
-| State management & routing | **GetX** (`get`) — controller, binding, routing, dialog/snackbar |
-| Tipografi          | **google_fonts** — *Plus Jakarta Sans*              |
-| Responsif          | **flutter_screenutil** — penyesuaian ukuran (`.w/.h/.r/.sp`), `designSize` 393×852 |
-| Ikon               | `cupertino_icons` + Material Icons                  |
-| Generator ikon app | **flutter_launcher_icons** (dev dependency)         |
-| Linting            | `flutter_lints`                                     |
+### Stack
+| Komponen | Teknologi |
+|----------|-----------|
+| **Framework** | Flutter (Dart SDK `^3.11.0`) |
+| **State Management, Routing & DI** | [GetX](https://pub.dev/packages/get) (`get ^4.7.3`) |
+| **Responsive UI** | [flutter_screenutil](https://pub.dev/packages/flutter_screenutil) (design size **393 × 852**) |
+| **Tipografi** | [google_fonts](https://pub.dev/packages/google_fonts) |
+| **Ikon Aplikasi** | [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) |
+| **Target Platform** | Android, iOS, Web, Desktop (Linux/macOS/Windows) |
 
-**Arsitektur**: pola **GetX MVC modular**. Setiap fitur berada di
-`lib/app/modules/<fitur>/` dan terdiri dari `controllers/`, `views/`, dan
-`bindings/`. Logika data dipisah ke lapisan `data/` (models + repositories),
-sedangkan komponen UI yang dapat dipakai ulang berada di `widgets/`, dan tema
-terpusat di `core/theme/`.
-
-**Tema terpusat**: warna, gaya teks, dan jarak diakses lewat `AppColors`,
-`AppTextStyles`, dan `AppSpacing` (tidak ada nilai yang di-hardcode di UI).
-Warna brand utama adalah biru (`#2563EB`) dengan gradien biru muda → biru tua.
-
----
-
-## Struktur Proyek
+### Pola Arsitektur (GetX Modular)
+Aplikasi mengikuti struktur **modular GetX** — setiap layar adalah sebuah *module* yang terdiri dari `bindings` (dependency injection), `controllers` (logika & state), dan `views` (tampilan).
 
 ```
-trustfund/
-├── assets/
-│   └── logo/
-│       ├── trustfund_logo.png      # logo lengkap (ikon + tulisan)
-│       └── trustfund_icon.png      # ikon saja (tanpa tulisan)
-├── lib/
-│   ├── main.dart                   # entry point (ScreenUtilInit + GetMaterialApp)
-│   └── app/
-│       ├── core/
-│       │   ├── theme/              # AppColors, AppTextStyles, AppSpacing, AppTheme
-│       │   └── utils/              # AppDialogs (popup "Segera Hadir")
-│       ├── data/
-│       │   ├── models/            # model kampanye, donasi, RAB, milestone, dll.
-│       │   └── repositories/      # CampaignRepository (sumber data + bookmark)
-│       ├── modules/               # fitur: splash, login, register, home,
-│       │                          # campaign, campaign_detail, donation,
-│       │                          # payment_instruction, donation_success,
-│       │                          # track_donation, saved, profile, botnavbar, dll.
-│       ├── routes/                # definisi rute (app_routes.dart, app_pages.dart)
-│       └── widgets/               # ±48 widget UI yang dapat dipakai ulang
-├── android/ • ios/ • web/         # proyek native per platform
-└── pubspec.yaml
+lib/
+├── main.dart                     # Entry point (GetMaterialApp + ScreenUtilInit)
+└── app/
+    ├── core/
+    │   ├── theme/                # Warna, spasi, gaya teks, tema aplikasi
+    │   └── utils/                # Helper (mis. dialog)
+    ├── data/
+    │   ├── models/              # Model data (Campaign, RAB, Milestone, Receipt, dll.)
+    │   └── repositories/        # CampaignRepository (sumber data in-memory)
+    ├── modules/                  # Fitur per layar (login, home, campaign_detail, donation, dll.)
+    │   └── <fitur>/
+    │       ├── bindings/
+    │       ├── controllers/
+    │       └── views/
+    ├── routes/                   # Definisi rute (app_pages.dart, app_routes.dart)
+    └── widgets/                  # Komponen UI reusable (kartu, tombol, skeleton, dll.)
 ```
 
-Navigasi utama menggunakan **bottom navigation bar** dengan 4 tab:
-**Beranda → Kampanye → Tersimpan → Profil**.
+### Lapisan Data — "Seolah Sudah Terhubung Database"
+Inti dari kesan *real* aplikasi ini ada pada **`CampaignRepository`** (`lib/app/data/repositories/campaign_repository.dart`):
+
+- Merupakan **singleton in-memory** yang meniru perilaku backend.
+- Seluruh tampilan (Beranda, Kampanye, Detail, Tersimpan) **diproyeksikan dari satu sumber data yang sama** (`_all`). Artinya, kampanye apa pun yang diklik donatur — baik dari Beranda maupun halaman Kampanye — akan **selalu membuka Detail Kampanye dengan data yang konsisten dan cocok** (`fetchDetailById(id)`).
+- Method async sengaja diberi **jeda buatan** (`±700 ms` untuk daftar, `±900 ms` untuk detail) untuk **memicu loading/skeleton state**, sehingga aplikasi terasa seperti benar-benar memuat data dari server.
+- Daftar kampanye tersimpan (`savedIds`) bersifat **reaktif** dan dibagikan ke seluruh aplikasi.
+
+### Identitas Visual
+- **Warna utama (brand):** Biru `#2563EB` dengan aksen *gradient*.
+- **Warna sukses:** Hijau `#16A34A` · **Peringatan:** `#D97706` · **Bahaya:** `#DC2626`.
+- **Latar beranda:** `#F5F5FB` (lavender lembut).
+- Logo & ikon tersedia di `assets/logo/`.
 
 ---
 
-## Cara Menjalankan
+## 4. Panduan Menjalankan (Demo)
 
-Prasyarat: **Flutter SDK** terpasang (channel stable, mendukung Dart `^3.11.0`).
+### Prasyarat
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Dart `^3.11.0`)
+- Emulator/perangkat Android atau iOS, atau browser (untuk mode web)
 
+### Langkah
 ```bash
-# 1. Masuk ke folder proyek
+# 1. Masuk ke folder project
 cd trustfund
 
-# 2. Ambil dependency
+# 2. Pasang dependensi
 flutter pub get
 
-# 3. (Opsional, sekali saja) generate ikon launcher
+# 3. (Opsional) Generate ikon aplikasi
 dart run flutter_launcher_icons
 
-# 4. Jalankan di emulator / perangkat
+# 4. Jalankan aplikasi
 flutter run
 ```
 
----
+### 🔑 Akun Demo
 
-## Panduan Demo
+Aplikasi build ini hanya menerima **satu akun demo**:
 
-1. Buka aplikasi → muncul **splash screen** berlogo, lalu otomatis menuju
-   halaman **Login** setelah ~2 detik.
-2. **Login** menggunakan akun demo di bawah (lihat
-   [Akun Login Demo](#akun-login-demo)).
-   - Tombol **Masuk dengan Google / Facebook** akan menampilkan popup
-     *"Segera Hadir"* (belum diimplementasikan).
-3. Setelah berhasil masuk, Anda berada di **Beranda**:
-   - Telusuri kampanye populer & mendesak.
-   - Buka tab **Kampanye** untuk melihat semua kampanye dan mencoba fitur
-     **urutkan** (ikon sort).
-   - Ketuk ikon **bookmark** pada kartu mana pun untuk menyimpan kampanye;
-     cek hasilnya di tab **Tersimpan**.
-4. Ketuk sebuah kampanye untuk melihat **detail** (progres, RAB, milestone),
-   lalu coba alur **Donasi** → pilih nominal & metode → **instruksi
-   pembayaran** → **halaman sukses** → **lacak penyaluran dana**.
-5. Buka tab **Profil**:
-   - Pengguna ditampilkan sebagai **Gilang**.
-   - Menu **"Kampanye Tersimpan"** akan membuka tab Tersimpan.
-   - Menu lain (Edit Profil, Pengaturan, Riwayat Donasi, dll.) menampilkan
-     popup *"Segera Hadir"*.
+| Field | Nilai |
+|-------|-------|
+| **Email** | `gilangns@gmail.com` |
+| **Password** | `gilang123` |
 
-### Akun Login Demo
+> Jika email/kata sandi salah atau kosong, aplikasi akan menampilkan notifikasi error. Login yang berhasil akan langsung membawa Anda ke menu utama (bottom navigation).
 
-Saat ini login **hanya** menerima satu akun berikut:
-
-| Field        | Nilai                 |
-|--------------|-----------------------|
-| **Email**    | `gilangns@gmail.com`  |
-| **Password** | `gilang123`           |
-
-Catatan:
-- Email tidak peka huruf besar/kecil dan spasi di awal/akhir akan diabaikan.
-- Kombinasi email/password lain akan menampilkan pesan error.
+### Alur Demo yang Disarankan
+1. **Splash → Login** — masuk dengan akun demo di atas.
+2. **Bottom Navigation** terbuka dengan tab **Beranda** terpilih secara default.
+3. **Pilih kampanye mana pun** (dari Beranda atau tab Kampanye) → berpindah ke **Detail Kampanye** dengan data (nama, total terkumpul, target, RAB, milestone) yang **sesuai item yang diklik**.
+4. Tekan **Donasi** → pilih nominal & metode pembayaran.
+5. **Instruksi Pembayaran** (mis. BCA Virtual Account) → tekan konfirmasi.
+6. **Donasi Berhasil** — tampil bukti donasi + *transaction hash* on-chain.
+7. **Lacak Donasi** — pantau pencairan dana per milestone.
+8. Jelajahi tab **Tersimpan** dan **Profil**.
 
 ---
 
-## Ikon Aplikasi (Launcher Icon)
+## 5. Bagaimana Pilar Blockchain & AI Ditampilkan
 
-Ikon aplikasi diatur lewat paket **flutter_launcher_icons** menggunakan berkas
-`assets/logo/trustfund_icon.png`. File ikon native (Android/iOS/Web) **belum
-di-generate** dalam paket ini. Untuk membuatnya, jalankan satu kali:
+Karena ini adalah **prototipe UI untuk demo**, pilar Blockchain dan AI direpresentasikan melalui elemen antarmuka berikut:
 
-```bash
-flutter pub get
-dart run flutter_launcher_icons
-```
-
-Perintah tersebut akan menulis ikon ke `mipmap-*` (Android), `AppIcon.appiconset`
-(iOS), dan `web/icons/` (Web).
+- **Blockchain / Smart Contract:** badge "Verified Fund", *transaction hash* pada layar Donasi Berhasil, status **"Dana Terkunci di Escrow"**, serta halaman **Lacak Donasi** yang menampilkan pencairan dana bertahap per milestone.
+- **AI:** *trust score* per kampanye, status **terverifikasi** pada yayasan, dan validasi **RAB** pada halaman detail kampanye.
 
 ---
 
-## Batasan Saat Ini
+## 6. Batasan Saat Ini (Current Limitations) ⚠️
 
-- **Prototipe UI/UX** — belum ada backend, API, maupun basis data. Semua data
-  (kampanye, donasi, dampak) masih berupa data contoh.
-- **Login bersifat statis** — hanya menerima satu akun demo; belum ada sistem
-  autentikasi/registrasi nyata maupun keamanan token.
-- **Login sosial (Google/Facebook) belum berfungsi** — menampilkan popup
-  *"Segera Hadir"*.
-- **Pembayaran/donasi adalah simulasi** — tidak ada transaksi atau payment
-  gateway sungguhan; alur hanya memperagakan tampilan.
-- **Data tidak persisten** — kampanye tersimpan dan status login akan hilang
-  setiap aplikasi ditutup (belum ada penyimpanan lokal).
-- **Sejumlah fitur masih placeholder** — Edit Profil, Pengaturan, Riwayat
-  Donasi, Laporan Dampak, Metode Pembayaran, KYC, Notifikasi, Pusat Bantuan,
-  dan halaman informasi menampilkan popup *"Segera Hadir"*.
-- **Ikon launcher native belum dibuat** sampai perintah generator dijalankan
-  (lihat bagian di atas).
+Build ini berfokus pada **alur & antarmuka (front-end prototype)**. Hal-hal berikut **belum** diimplementasikan secara penuh:
+
+1. **Data masih mock (in-memory).** Tidak ada backend/database nyata. Seluruh data berasal dari `CampaignRepository` dan **akan kembali ke kondisi awal saat aplikasi di-restart** (termasuk kampanye yang disimpan).
+2. **Belum terhubung blockchain sungguhan.** *Transaction hash* hanya contoh tampilan, dan tombol **"Lihat di Explorer"** belum membuka tautan apa pun (masih *stub*).
+3. **Belum ada AI sungguhan.** *Trust score*, status verifikasi, dan validasi RAB merupakan data statis untuk keperluan demo.
+4. **Autentikasi terbatas.** Hanya satu akun demo yang valid (hardcoded). Alur **daftar, lupa kata sandi, OTP, dan reset kata sandi** tersedia sebagai antarmuka, namun belum terhubung ke layanan autentikasi nyata.
+5. **Pembayaran simulasi.** Nomor Virtual Account dan instruksi pembayaran bersifat *dummy*; belum terintegrasi dengan payment gateway/QRIS sungguhan.
+6. **Tanpa notifikasi real-time & sesi pengguna.** Belum ada push notification, manajemen sesi, atau sinkronisasi multi-perangkat.
+
+### Rencana Pengembangan Lanjutan
+- Integrasi backend & database nyata (REST/GraphQL).
+- Penerapan Smart Contract di jaringan **Polygon** beserta deep-link ke block explorer.
+- Mesin **AI Document Fraud Detection** untuk verifikasi dokumen & RAB.
+- Integrasi payment gateway lokal (QRIS, Virtual Account, e-wallet).
+- Onboarding & verifikasi yayasan terdaftar Kemenkumham.
+
+---
+
+<p align="center"><strong>TrustFund — Transparan & Terpercaya.</strong><br/>NexTrust · Digdaya x Hackathon BI 2026</p>
