@@ -7,7 +7,13 @@ class OtpVerificationController extends GetxController {
 
   void onCodeChanged(String value) => code.value = value;
 
-  void verify() => Get.toNamed(Routes.RESET_PASSWORD);
+  void verify() {
+    if (code.value.length != 5) {
+      Get.snackbar('Error', 'Kode harus 5 digit', snackPosition: SnackPosition.TOP);
+      return;
+    }
+    Get.toNamed(Routes.RESET_PASSWORD);
+  }
 
   void resend() {
     // UI-only build: no backend is wired up.
