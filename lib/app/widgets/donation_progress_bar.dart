@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../core/theme/app_colors.dart';
+
+/// Thin rounded progress bar for a campaign's funding progress.
+///
+/// Built from plain containers (instead of [LinearProgressIndicator]) to avoid
+/// a Flutter semantics assertion (`!semantics.parentDataDirty`) that the
+/// Material progress indicators can trigger during the semantics flush.
+class DonationProgressBar extends StatelessWidget {
+  final double value;
+  const DonationProgressBar({super.key, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final clamped = value.clamp(0.0, 1.0);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.r),
+      child: Container(
+        height: 6.h,
+        width: double.infinity,
+        color: AppColors.border,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: FractionallySizedBox(
+            widthFactor: clamped,
+            child: Container(color: AppColors.primary),
+          ),
+        ),
+      ),
+    );
+  }
+}

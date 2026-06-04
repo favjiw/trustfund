@@ -9,7 +9,6 @@ class HomeController extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   final RxInt selectedCategory = 0.obs;
-  final RxInt navIndex = 0.obs;
 
   final List<String> categories = const [
     'Semua',
@@ -62,8 +61,6 @@ class HomeController extends GetxController {
   ];
 
   void onCategorySelected(int index) => selectedCategory.value = index;
-
-  void onNavTapped(int index) => navIndex.value = index;
 
   @override
   void onClose() {

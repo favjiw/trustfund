@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../widgets/app_bottom_nav_bar.dart';
 import '../../../widgets/category_chip.dart';
 import '../../../widgets/impact_stat_card.dart';
 import '../../../widgets/popular_campaign_card.dart';
@@ -21,43 +20,34 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.homeBackground,
-      bottomNavigationBar: Obx(
-        () => AppBottomNavBar(
-          currentIndex: controller.navIndex.value,
-          onTap: controller.onNavTapped,
-        ),
-      ),
       body: SafeArea(
         bottom: false,
-        child: SingleChildScrollView(
+        child: ListView(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.xl.w,
             AppSpacing.md.h,
             AppSpacing.xl.w,
             AppSpacing.xxl.h,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTitle(),
-              SizedBox(height: AppSpacing.lg.h),
-              _buildGreeting(),
-              SizedBox(height: AppSpacing.lg.h),
-              SearchField(controller: controller.searchController),
-              SizedBox(height: AppSpacing.lg.h),
-              _buildCategories(),
-              SizedBox(height: AppSpacing.xxl.h),
-              SectionHeader(title: 'Mendesak! Butuh bantuan kamu.'),
-              SizedBox(height: AppSpacing.lg.h),
-              _buildUrgentList(),
-              SizedBox(height: AppSpacing.xxl.h),
-              SectionHeader(title: 'Kampanye Populer'),
-              SizedBox(height: AppSpacing.lg.h),
-              _buildPopularList(),
-              SizedBox(height: AppSpacing.xxl.h),
-              _buildImpactSection(),
-            ],
-          ),
+          children: [
+            _buildTitle(),
+            SizedBox(height: AppSpacing.lg.h),
+            _buildGreeting(),
+            SizedBox(height: AppSpacing.lg.h),
+            SearchField(controller: controller.searchController),
+            SizedBox(height: AppSpacing.lg.h),
+            _buildCategories(),
+            SizedBox(height: AppSpacing.xxl.h),
+            SectionHeader(title: 'Mendesak! Butuh bantuan kamu.'),
+            SizedBox(height: AppSpacing.lg.h),
+            _buildUrgentList(),
+            SizedBox(height: AppSpacing.xxl.h),
+            SectionHeader(title: 'Kampanye Populer'),
+            SizedBox(height: AppSpacing.lg.h),
+            _buildPopularList(),
+            SizedBox(height: AppSpacing.xxl.h),
+            _buildImpactSection(),
+          ],
         ),
       ),
     );
@@ -107,28 +97,31 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildCategories() {
     return Obx(
-      () => Row(
-        children: List.generate(controller.categories.length, (index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index == controller.categories.length - 1
-                  ? 0
-                  : AppSpacing.sm.w,
-            ),
-            child: CategoryChip(
-              label: controller.categories[index],
-              selected: controller.selectedCategory.value == index,
-              onTap: () => controller.onCategorySelected(index),
-            ),
-          );
-        }),
+          () => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(controller.categories.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index == controller.categories.length - 1
+                    ? 0
+                    : AppSpacing.sm.w,
+              ),
+              child: CategoryChip(
+                label: controller.categories[index],
+                selected: controller.selectedCategory.value == index,
+                onTap: () => controller.onCategorySelected(index),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
 
   Widget _buildUrgentList() {
     return SizedBox(
-      height: 250.h,
+      height: 290.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.zero,
@@ -171,10 +164,12 @@ class HomeView extends GetView<HomeController> {
           Positioned(
             top: -8.h,
             right: -8.w,
-            child: Icon(
-              Icons.shield,
-              size: 96.sp,
-              color: AppColors.shieldWatermark,
+            child: ExcludeSemantics(
+              child: Icon(
+                Icons.shield,
+                size: 96.sp,
+                color: AppColors.shieldWatermark,
+              ),
             ),
           ),
           Column(
@@ -193,7 +188,7 @@ class HomeView extends GetView<HomeController> {
               ),
               SizedBox(height: AppSpacing.lg.h),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: ImpactStatCard(

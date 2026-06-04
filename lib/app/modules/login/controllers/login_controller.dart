@@ -8,26 +8,9 @@ class LoginController extends GetxController {
   final passwordController = TextEditingController();
 
   void login() {
-    final email = emailController.text.trim();
-    final password = passwordController.text;
-
-    if (email.isEmpty || !_isEmailValid(email)) {
-      Get.snackbar('Error', 'Masukkan email yang valid', snackPosition: SnackPosition.TOP);
-      return;
-    }
-
-    if (password.isEmpty || password.length < 6) {
-      Get.snackbar('Error', 'Password harus minimal 6 karakter', snackPosition: SnackPosition.TOP);
-      return;
-    }
-
-    // All validations passed
-    Get.offAllNamed(Routes.HOME);
-  }
-
-  bool _isEmailValid(String email) {
-    final regex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}");
-    return regex.hasMatch(email);
+    // UI-only build: no backend is wired up. Navigate to the main app shell
+    // (bottom navigation), replacing the auth stack.
+    Get.offAllNamed(Routes.BOTNAVBAR);
   }
 
   void goToRegister() => Get.toNamed(Routes.REGISTER);

@@ -19,18 +19,12 @@ class TrustFundApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: GetMaterialApp(
-            title: 'TrustFund',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            initialRoute: AppPages.INITIAL,
-            getPages: AppPages.routes,
-          ),
+        return GetMaterialApp(
+          title: 'TrustFund',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          initialRoute: AppPages.INITIAL,
+          getPages: AppPages.routes,
         );
       },
     );

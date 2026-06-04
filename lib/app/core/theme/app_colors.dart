@@ -34,4 +34,14 @@ class AppColors {
 
   // Brand marks
   static const Color facebook = Color(0xFF1877F2);
+
+  // Home / dashboard
+  static const Color homeBackground = Color(0xFFF5F5FB);
+  static const Color detailButton = Color(0xFF434B6E);
+  static const Color success = Color(0xFF16A34A);
+  static const Color successBg = Color(0xFFE7F7EE);
+  static const Color impactBackground = Color(0xFFEAEAF3);
+  static const Color navInactive = Color(0xFF9CA3AF);
+  static const Color shieldWatermark = Color(0xFFD9D9E8);
+  static const Color imagePlaceholder = Color(0xFFEDEDF2);
 }
