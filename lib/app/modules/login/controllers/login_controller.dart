@@ -9,6 +9,7 @@ class LoginController extends GetxController {
 
   void login() {
     // UI-only build: no backend is wired up.
+    Get.offAllNamed(Routes.HOME);
   }
 
   void goToRegister() => Get.toNamed(Routes.REGISTER);

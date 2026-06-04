@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../routes/app_pages.dart';
+
 class RegisterController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -32,7 +34,7 @@ class RegisterController extends GetxController {
     // UI-only build: no backend is wired up.
   }
 
-  void goToLogin() => Get.back();
+  void goToLogin() => Get.offAllNamed(Routes.LOGIN);
 
   @override
   void onClose() {
