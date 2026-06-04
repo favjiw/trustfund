@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/models/campaign.dart';
+import 'campaign_bookmark.dart';
 import 'detail_button.dart';
 import 'network_image_box.dart';
 import 'verified_badge.dart';
@@ -71,6 +72,8 @@ class PopularCampaignCard extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(width: AppSpacing.sm.w),
+              CampaignBookmark(id: campaign.id),
             ],
           ),
           SizedBox(height: AppSpacing.lg.h),

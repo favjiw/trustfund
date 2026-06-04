@@ -1,5 +1,6 @@
 /// Data model for a campaign shown in the vertical list on the Kampanye page.
 class CampaignItem {
+  final String id;
   final String imageUrl;
   final String category;
   final String title;
@@ -15,6 +16,7 @@ class CampaignItem {
   final String daysLeftLabel;
 
   const CampaignItem({
+    required this.id,
     required this.imageUrl,
     required this.category,
     required this.title,

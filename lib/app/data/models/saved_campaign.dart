@@ -3,6 +3,7 @@ enum SavedStatus { active, completed }
 
 /// Data model for a campaign shown on the Tersimpan (saved) page.
 class SavedCampaign {
+  final String id;
   final String imageUrl;
   final String title;
   final String organizer;
@@ -15,6 +16,7 @@ class SavedCampaign {
   final SavedStatus status;
 
   const SavedCampaign({
+    required this.id,
     required this.imageUrl,
     required this.title,
     required this.organizer,

@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/models/campaign.dart';
+import 'campaign_bookmark.dart';
 import 'donation_progress_bar.dart';
 import 'network_image_box.dart';
 import 'verified_badge.dart';
@@ -31,15 +32,27 @@ class UrgentCampaignCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            NetworkImageBox(
-              url: campaign.imageUrl,
-              height: 96.h,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppSpacing.radiusLg.r),
-              ),
+            Stack(
+              children: [
+                NetworkImageBox(
+                  url: campaign.imageUrl,
+                  height: 96.h,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppSpacing.radiusLg.r),
+                  ),
+                ),
+                Positioned(
+                  top: AppSpacing.sm.h,
+                  right: AppSpacing.sm.w,
+                  child: CampaignBookmark(id: campaign.id),
+                ),
+              ],
             ),
             Padding(
-              padding: EdgeInsets.all(AppSpacing.md.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md.w,
+                vertical: AppSpacing.md.h,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -10,6 +10,8 @@ import '../../../widgets/impact_stat_card.dart';
 import '../../../widgets/popular_campaign_card.dart';
 import '../../../widgets/search_field.dart';
 import '../../../widgets/section_header.dart';
+import '../../../widgets/skeleton_box.dart';
+import '../../../widgets/state_message.dart';
 import '../../../widgets/urgent_campaign_card.dart';
 import '../controllers/home_controller.dart';
 
@@ -34,17 +36,13 @@ class HomeView extends GetView<HomeController> {
             SizedBox(height: AppSpacing.lg.h),
             _buildGreeting(),
             SizedBox(height: AppSpacing.lg.h),
-            SearchField(controller: controller.searchController),
+            SearchField(
+              onChanged: controller.onSearchChanged,
+            ),
             SizedBox(height: AppSpacing.lg.h),
             _buildCategories(),
             SizedBox(height: AppSpacing.xxl.h),
-            SectionHeader(title: 'Mendesak! Butuh bantuan kamu.'),
-            SizedBox(height: AppSpacing.lg.h),
-            _buildUrgentList(),
-            SizedBox(height: AppSpacing.xxl.h),
-            SectionHeader(title: 'Kampanye Populer'),
-            SizedBox(height: AppSpacing.lg.h),
-            _buildPopularList(),
+            _buildFeed(),
             SizedBox(height: AppSpacing.xxl.h),
             _buildImpactSection(),
           ],
@@ -97,57 +95,216 @@ class HomeView extends GetView<HomeController> {
 
   Widget _buildCategories() {
     return Obx(
-          () => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(controller.categories.length, (index) {
-            return Padding(
-              padding: EdgeInsets.only(
-                right: index == controller.categories.length - 1
-                    ? 0
-                    : AppSpacing.sm.w,
-              ),
-              child: CategoryChip(
-                label: controller.categories[index],
-                selected: controller.selectedCategory.value == index,
-                onTap: () => controller.onCategorySelected(index),
-              ),
-            );
-          }),
-        ),
+      () => Row(
+        children: List.generate(controller.categories.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(
+              right: index == controller.categories.length - 1
+                  ? 0
+                  : AppSpacing.sm.w,
+            ),
+            child: CategoryChip(
+              label: controller.categories[index],
+              selected: controller.selectedCategory.value == index,
+              onTap: () => controller.onCategorySelected(index),
+            ),
+          );
+        }),
       ),
     );
   }
 
+  Widget _buildFeed() {
+    return Obx(() {
+      if (controller.hasError.value) {
+        return StateMessage.error(onRetry: controller.loadFeed);
+      }
+      final isLoading = controller.isLoading.value;
+      final isEmpty = !isLoading &&
+          controller.urgentCampaigns.isEmpty &&
+          controller.popularCampaigns.isEmpty;
+      if (isEmpty) {
+        return const StateMessage.empty();
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(title: 'Mendesak! Butuh bantuan kamu.'),
+          SizedBox(height: AppSpacing.lg.h),
+          _buildUrgentList(),
+          SizedBox(height: AppSpacing.xxl.h),
+          SectionHeader(title: 'Kampanye Populer'),
+          SizedBox(height: AppSpacing.lg.h),
+          _buildPopularList(),
+        ],
+      );
+    });
+  }
+
   Widget _buildUrgentList() {
     return SizedBox(
-      height: 290.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
-        itemCount: controller.urgentCampaigns.length,
-        separatorBuilder: (_, __) => SizedBox(width: AppSpacing.lg.w),
-        itemBuilder: (context, index) => UrgentCampaignCard(
-          campaign: controller.urgentCampaigns[index],
+      height: 270.h,
+      child: Obx(() {
+        if (controller.isLoading.value) {
+          return ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: 2,
+            separatorBuilder: (_, __) => SizedBox(width: AppSpacing.lg.w),
+            itemBuilder: (_, __) => _buildUrgentSkeleton(),
+          );
+        }
+        final urgent = controller.filteredUrgentCampaigns;
+        if (urgent.isEmpty) {
+          return _buildEmptyState();
+        }
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.zero,
+          itemCount: urgent.length,
+          separatorBuilder: (_, __) => SizedBox(width: AppSpacing.lg.w),
+          itemBuilder: (context, index) {
+            final campaign = urgent[index];
+            return UrgentCampaignCard(
+              campaign: campaign,
+              onTap: () => controller.openCampaign(campaign.id),
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        'Tidak ada kampanye yang cocok',
+        style: AppTextStyles.c1Regular.copyWith(
+          color: AppColors.textSecondary,
         ),
       ),
     );
   }
 
   Widget _buildPopularList() {
-    return Column(
-      children: List.generate(controller.popularCampaigns.length, (index) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: index == controller.popularCampaigns.length - 1
-                ? 0
-                : AppSpacing.lg.h,
-          ),
-          child: PopularCampaignCard(
-            campaign: controller.popularCampaigns[index],
-          ),
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Column(
+          children: List.generate(2, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == 1 ? 0 : AppSpacing.lg.h,
+              ),
+              child: _buildPopularSkeleton(),
+            );
+          }),
         );
-      }),
+      }
+      final popular = controller.filteredPopularCampaigns;
+      if (popular.isEmpty) {
+        return _buildEmptyState();
+      }
+      return Column(
+        children: List.generate(popular.length, (index) {
+          final campaign = popular[index];
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index == popular.length - 1 ? 0 : AppSpacing.lg.h,
+            ),
+            child: PopularCampaignCard(
+              campaign: campaign,
+              onDetail: () => controller.openCampaign(campaign.id),
+            ),
+          );
+        }),
+      );
+    });
+  }
+
+  Widget _buildUrgentSkeleton() {
+    return Container(
+      width: 200.w,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SkeletonBox(
+            height: 96.h,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppSpacing.radiusLg.r),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(AppSpacing.md.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: 150.w, height: 14.h),
+                SizedBox(height: AppSpacing.sm.h),
+                SkeletonBox(width: 90.w, height: 12.h),
+                SizedBox(height: AppSpacing.md.h),
+                SkeletonBox(width: double.infinity, height: 8.h),
+                SizedBox(height: AppSpacing.md.h),
+                SkeletonBox(width: 120.w, height: 12.h),
+                SizedBox(height: AppSpacing.sm.h),
+                SkeletonBox(width: 70.w, height: 12.h),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopularSkeleton() {
+    return Container(
+      padding: EdgeInsets.all(AppSpacing.lg.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(width: 72.w, height: 72.w),
+              SizedBox(width: AppSpacing.md.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonBox(width: double.infinity, height: 14.h),
+                    SizedBox(height: AppSpacing.sm.h),
+                    SkeletonBox(width: 140.w, height: 14.h),
+                    SizedBox(height: AppSpacing.sm.h),
+                    SkeletonBox(width: 90.w, height: 12.h),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.lg.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SkeletonBox(width: 120.w, height: 24.h),
+              SkeletonBox(
+                width: 90.w,
+                height: 32.h,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -187,24 +344,26 @@ class HomeView extends GetView<HomeController> {
                     .copyWith(color: AppColors.textSecondary),
               ),
               SizedBox(height: AppSpacing.lg.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ImpactStatCard(
-                      value: 'Rp 12.8 M+',
-                      label: 'Dana Terdistribusi',
-                      valueColor: AppColors.success,
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: ImpactStatCard(
+                        value: 'Rp 12.8 M+',
+                        label: 'Dana Terdistribusi',
+                        valueColor: AppColors.success,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: AppSpacing.md.w),
-                  Expanded(
-                    child: ImpactStatCard(
-                      value: '3,420+',
-                      label: 'Kampanye Selesai',
+                    SizedBox(width: AppSpacing.md.w),
+                    Expanded(
+                      child: ImpactStatCard(
+                        value: '3,420+',
+                        label: 'Kampanye Selesai',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(height: AppSpacing.md.h),
               _buildFraudPill(),

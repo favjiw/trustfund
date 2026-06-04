@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/app_dialogs.dart';
 import '../../../widgets/app_text_field.dart';
 import '../../../widgets/auth_header.dart';
 import '../../../widgets/google_logo.dart';
@@ -67,7 +68,7 @@ class LoginView extends GetView<LoginController> {
               SocialButton(
                 icon: const GoogleLogo(),
                 label: 'Masuk dengan Google',
-                onPressed: () {},
+                onPressed: () => AppDialogs.comingSoon('Masuk dengan Google'),
               ),
               SizedBox(height: AppSpacing.md.h),
               SocialButton(
@@ -77,7 +78,7 @@ class LoginView extends GetView<LoginController> {
                   size: 24.sp,
                 ),
                 label: 'Masuk dengan Facebook',
-                onPressed: () {},
+                onPressed: () => AppDialogs.comingSoon('Masuk dengan Facebook'),
               ),
               SizedBox(height: AppSpacing.xxl.h),
               Center(

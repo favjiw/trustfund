@@ -3,6 +3,7 @@ import 'rab_item.dart';
 
 /// Rich data model backing the campaign detail page.
 class CampaignDetail {
+  final String id;
   final String imageUrl;
   final String category;
   final String location;
@@ -22,6 +23,7 @@ class CampaignDetail {
   final List<MilestoneItem> milestones;
 
   const CampaignDetail({
+    required this.id,
     required this.imageUrl,
     required this.category,
     required this.location,

@@ -248,6 +248,42 @@ class PaymentInstructionView extends GetView<PaymentInstructionController> {
     );
   }
 
+  Widget _buildProcessingButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: AppSpacing.buttonHeight.h,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 18.w,
+                height: 18.w,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                ),
+              ),
+              SizedBox(width: AppSpacing.sm.w),
+              Text(
+                'Memproses pembayaran...',
+                style: AppTextStyles.p2Medium.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStep(int number, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,17 +336,25 @@ class PaymentInstructionView extends GetView<PaymentInstructionController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PrimaryButton(
-              label: 'Saya Sudah Bayar',
-              onPressed: controller.confirmPayment,
+            Obx(
+              () => controller.isProcessing.value
+                  ? _buildProcessingButton()
+                  : PrimaryButton(
+                      label: 'Saya Sudah Bayar',
+                      onPressed: controller.confirmPayment,
+                    ),
             ),
             SizedBox(height: AppSpacing.sm.h),
-            TextButton(
-              onPressed: controller.cancelDonation,
-              child: Text(
-                'Batalkan Donasi',
-                style: AppTextStyles.c1Medium
-                    .copyWith(color: AppColors.textSecondary),
+            Obx(
+              () => TextButton(
+                onPressed: controller.isProcessing.value
+                    ? null
+                    : controller.cancelDonation,
+                child: Text(
+                  'Batalkan Donasi',
+                  style: AppTextStyles.c1Medium
+                      .copyWith(color: AppColors.textSecondary),
+                ),
               ),
             ),
           ],

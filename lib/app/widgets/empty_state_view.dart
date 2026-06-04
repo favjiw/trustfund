@@ -46,7 +46,7 @@ class EmptyStateView extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style:
-              AppTextStyles.h3Bold.copyWith(color: AppColors.textPrimary),
+                  AppTextStyles.h3Bold.copyWith(color: AppColors.textPrimary),
             ),
             SizedBox(height: AppSpacing.sm.h),
             Text(

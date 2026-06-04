@@ -1,14 +1,22 @@
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/campaign.dart';
+import '../../../data/repositories/campaign_repository.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   final String userName = 'Gilang';
 
-  final TextEditingController searchController = TextEditingController();
+  final CampaignRepository _repository = CampaignRepository.instance;
 
   final RxInt selectedCategory = 0.obs;
+
+  final RxString searchQuery = ''.obs;
+
+  final RxBool isLoading = true.obs;
+  final RxBool hasError = false.obs;
+  final RxList<UrgentCampaign> urgentCampaigns = <UrgentCampaign>[].obs;
+  final RxList<PopularCampaign> popularCampaigns = <PopularCampaign>[].obs;
 
   final List<String> categories = const [
     'Semua',
@@ -16,55 +24,56 @@ class HomeController extends GetxController {
     'Pendidikan',
   ];
 
-  final List<UrgentCampaign> urgentCampaigns = const [
-    UrgentCampaign(
-      imageUrl:
-          'https://imgs.mongabay.com/wp-content/uploads/sites/20/2021/08/04092006/1-Indonesian-village-rising-tidal-floodwaters-768x512.jpg',
-      title: 'Banjir Sumatera',
-      organizer: 'Rumah Bantu',
-      verified: true,
-      raisedLabel: 'Rp70.000.000 dari Rp100.000.000',
-      daysLeftLabel: '2 hari lagi',
-      progress: 0.7,
-    ),
-    UrgentCampaign(
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/6/6b/I35_Bridge_Collapse_4crop.jpg',
-      title: 'Jembatan Ambruk',
-      organizer: 'KYC',
-      verified: true,
-      raisedLabel: 'Rp10.000.000 dari Rp50.000.000',
-      daysLeftLabel: '3 hari lagi',
-      progress: 0.2,
-    ),
-  ];
+  /// Urgent campaigns after applying the active search query and category chip.
+  List<UrgentCampaign> get filteredUrgentCampaigns => urgentCampaigns
+      .where((c) => _matches(c.category, c.title, c.organizer))
+      .toList();
 
-  final List<PopularCampaign> popularCampaigns = const [
-    PopularCampaign(
-      imageUrl:
-          'https://cdn.shopify.com/s/files/1/0326/7189/files/Mangrove_seedlings_Sunderbans_Reforestation.jpg?v=1722463362',
-      title: 'Program Penanaman 10.000 Pohon Mangrove',
-      organizer: 'Rand Ent',
-      verified: true,
-      donaturLabel: '1.200 Donatur',
-      amountLabel: 'Rp 842.000.000',
-    ),
-    PopularCampaign(
-      imageUrl:
-          'https://worldconcern.org/migration/images/assets/post/ch16amkereribecd026-scr.jpg',
-      title: 'Air Bersih untuk Desa Dove',
-      organizer: 'Bantu bantu',
-      verified: true,
-      donaturLabel: '600 Donatur',
-      amountLabel: 'Rp 523.000.000',
-    ),
-  ];
+  /// Popular campaigns after applying the active search query and category chip.
+  List<PopularCampaign> get filteredPopularCampaigns => popularCampaigns
+      .where((c) => _matches(c.category, c.title, c.organizer))
+      .toList();
+
+  bool _matches(String category, String title, String organizer) {
+    final query = searchQuery.value.trim().toLowerCase();
+    final index = selectedCategory.value;
+    final selected = index >= 0 && index < categories.length
+        ? categories[index]
+        : categories.first;
+    final matchesCategory = index == 0 || category == selected;
+    final matchesQuery = query.isEmpty ||
+        title.toLowerCase().contains(query) ||
+        organizer.toLowerCase().contains(query);
+    return matchesCategory && matchesQuery;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadFeed();
+  }
+
+  Future<void> loadFeed() async {
+    isLoading.value = true;
+    hasError.value = false;
+    try {
+      final urgent = await _repository.fetchUrgent();
+      final popular = await _repository.fetchPopular();
+      urgentCampaigns.assignAll(urgent);
+      popularCampaigns.assignAll(popular);
+    } catch (_) {
+      hasError.value = true;
+      urgentCampaigns.clear();
+      popularCampaigns.clear();
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   void onCategorySelected(int index) => selectedCategory.value = index;
 
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
-  }
+  void onSearchChanged(String value) => searchQuery.value = value;
+
+  void openCampaign(String id) =>
+      Get.toNamed(Routes.CAMPAIGN_DETAIL, arguments: id);
 }

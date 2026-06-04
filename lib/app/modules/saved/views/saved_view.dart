@@ -9,6 +9,7 @@ import '../../../widgets/empty_state_view.dart';
 import '../../../widgets/network_image_box.dart';
 import '../../../widgets/saved_campaign_card.dart';
 import '../../../widgets/segmented_tabs.dart';
+import '../../../widgets/skeleton_box.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../controllers/saved_controller.dart';
 
@@ -26,7 +27,8 @@ class SavedView extends GetView<SavedController> {
             _buildTopBar(),
             Expanded(
               child: Obx(() {
-                if (controller.savedCampaigns.isEmpty) {
+                if (!controller.isLoading.value &&
+                    controller.savedCampaigns.isEmpty) {
                   return EmptyStateView(
                     icon: Icons.bookmark_border_rounded,
                     title: 'Belum ada kampanye tersimpan',
@@ -88,7 +90,6 @@ class SavedView extends GetView<SavedController> {
   }
 
   Widget _buildList() {
-    final items = controller.visibleCampaigns;
     return ListView(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.xl.w,
@@ -110,26 +111,95 @@ class SavedView extends GetView<SavedController> {
           onChanged: controller.onFilterSelected,
         ),
         SizedBox(height: AppSpacing.lg.h),
-        if (items.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(top: AppSpacing.huge.h),
-            child: Center(
-              child: Text(
-                'Tidak ada kampanye pada kategori ini.',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.c1Regular
-                    .copyWith(color: AppColors.textSecondary),
-              ),
+        if (controller.isLoading.value)
+          ...List.generate(
+            3,
+            (_) => Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.lg.h),
+              child: _buildCardSkeleton(),
             ),
           )
         else
-          ...items.map(
-            (campaign) => Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.lg.h),
-              child: SavedCampaignCard(campaign: campaign),
+          ..._buildCampaignCards(),
+      ],
+    );
+  }
+
+  List<Widget> _buildCampaignCards() {
+    final items = controller.visibleCampaigns;
+    if (items.isEmpty) {
+      return [
+        Padding(
+          padding: EdgeInsets.only(top: AppSpacing.huge.h),
+          child: Center(
+            child: Text(
+              'Tidak ada kampanye pada kategori ini.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.c1Regular
+                  .copyWith(color: AppColors.textSecondary),
             ),
           ),
-      ],
+        ),
+      ];
+    }
+    return items
+        .map(
+          (campaign) => Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.lg.h),
+            child: SavedCampaignCard(
+              campaign: campaign,
+              onDetail: () => controller.openDetail(campaign.id),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  Widget _buildCardSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SkeletonBox(
+            height: 150.h,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppSpacing.radiusLg.r),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(AppSpacing.lg.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: double.infinity, height: 16.h),
+                SizedBox(height: AppSpacing.sm.h),
+                SkeletonBox(width: 200.w, height: 16.h),
+                SizedBox(height: AppSpacing.md.h),
+                SkeletonBox(width: 140.w, height: 14.h),
+                SizedBox(height: AppSpacing.md.h),
+                SkeletonBox(
+                  width: double.infinity,
+                  height: 64.h,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+                ),
+                SizedBox(height: AppSpacing.md.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SkeletonBox(width: 100.w, height: 14.h),
+                    SkeletonBox(width: 80.w, height: 14.h),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

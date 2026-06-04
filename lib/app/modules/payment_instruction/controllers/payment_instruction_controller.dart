@@ -12,6 +12,7 @@ class PaymentInstructionController extends GetxController {
   final Rx<Duration> remaining =
       const Duration(hours: 23, minutes: 45, seconds: 10).obs;
   final RxBool stepsExpanded = true.obs;
+  final RxBool isProcessing = false.obs;
 
   Timer? _timer;
 
@@ -57,8 +58,13 @@ class PaymentInstructionController extends GetxController {
     );
   }
 
-  void confirmPayment() =>
-      Get.offNamed(Routes.DONATION_SUCCESS, arguments: receipt);
+  Future<void> confirmPayment() async {
+    if (isProcessing.value) return;
+    isProcessing.value = true;
+    await Future.delayed(const Duration(milliseconds: 1800));
+    isProcessing.value = false;
+    Get.offNamed(Routes.DONATION_SUCCESS, arguments: receipt);
+  }
 
   void cancelDonation() => Get.back();
 

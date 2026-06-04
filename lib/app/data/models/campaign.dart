@@ -1,6 +1,8 @@
 /// Data model for an "urgent" campaign shown in the horizontal carousel.
 class UrgentCampaign {
+  final String id;
   final String imageUrl;
+  final String category;
   final String title;
   final String organizer;
   final bool verified;
@@ -9,7 +11,9 @@ class UrgentCampaign {
   final double progress;
 
   const UrgentCampaign({
+    required this.id,
     required this.imageUrl,
+    required this.category,
     required this.title,
     required this.organizer,
     required this.verified,
@@ -21,7 +25,9 @@ class UrgentCampaign {
 
 /// Data model for a "popular" campaign shown in the vertical list.
 class PopularCampaign {
+  final String id;
   final String imageUrl;
+  final String category;
   final String title;
   final String organizer;
   final bool verified;
@@ -29,7 +35,9 @@ class PopularCampaign {
   final String amountLabel;
 
   const PopularCampaign({
+    required this.id,
     required this.imageUrl,
+    required this.category,
     required this.title,
     required this.organizer,
     required this.verified,

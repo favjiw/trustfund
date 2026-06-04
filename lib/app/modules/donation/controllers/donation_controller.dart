@@ -113,9 +113,9 @@ class DonationController extends GetxController {
 
     final paymentIndex = selectedPayment.value;
     final paymentLabel =
-    (paymentIndex >= 0 && paymentIndex < paymentMethods.length)
-        ? paymentMethods[paymentIndex].label
-        : paymentMethods.first.label;
+        (paymentIndex >= 0 && paymentIndex < paymentMethods.length)
+            ? paymentMethods[paymentIndex].label
+            : paymentMethods.first.label;
 
     final receipt = DonationReceipt(
       campaignTitle: campaignTitle,

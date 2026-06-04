@@ -1,15 +1,23 @@
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/campaign_item.dart';
+import '../../../data/repositories/campaign_repository.dart';
+
+/// Ordering options for the Kampanye list.
+enum CampaignSort { newest, mostRaised, endingSoon }
 
 class CampaignController extends GetxController {
-  final TextEditingController searchController = TextEditingController();
+  final CampaignRepository _repository = CampaignRepository.instance;
 
   final RxInt selectedCategory = 0.obs;
 
-  final String resultCountLabel = 'Menampilkan 24 kampanye';
-  final String sortLabel = 'Terbaru';
+  final RxString searchQuery = ''.obs;
+
+  final Rx<CampaignSort> sortOption = CampaignSort.newest.obs;
+
+  final RxBool isLoading = true.obs;
+  final RxBool hasError = false.obs;
+  final RxList<CampaignItem> campaigns = <CampaignItem>[].obs;
 
   final List<String> categories = const [
     'Semua',
@@ -17,46 +25,87 @@ class CampaignController extends GetxController {
     'Infrastruktur',
   ];
 
-  final List<CampaignItem> campaigns = const [
-    CampaignItem(
-      imageUrl:
-          'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
-      category: 'Pendidikan',
-      title: 'Bantu Renovasi Sekolah Dasar di Pelosok NTT',
-      organizer: 'Yayasan Senyum Anak',
-      organizerInitial: 'Y',
-      verified: true,
-      trustScore: 98,
-      raisedLabel: 'Rp150.000.000',
-      targetLabel: 'dari target Rp200.000.000',
-      progress: 0.75,
-      percentLabel: '75%',
-      donaturLabel: '1.240 Donatur',
-      daysLeftLabel: '2 hari lagi',
-    ),
-    CampaignItem(
-      imageUrl:
-          'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=800&q=80',
-      category: 'Kesehatan',
-      title: 'Peralatan Medis untuk Klinik Desa Sejahtera',
-      organizer: 'Medis Nusantara',
-      organizerInitial: 'M',
-      verified: true,
-      trustScore: 95,
-      raisedLabel: 'Rp45.000.000',
-      targetLabel: 'dari target Rp100.000.000',
-      progress: 0.45,
-      percentLabel: '45%',
-      donaturLabel: '432 Donatur',
-      daysLeftLabel: '14 hari lagi',
-    ),
-  ];
+  /// Human-readable label for a sort option (used by the control and sheet).
+  static String labelForSort(CampaignSort option) {
+    switch (option) {
+      case CampaignSort.newest:
+        return 'Terbaru';
+      case CampaignSort.mostRaised:
+        return 'Terbanyak';
+      case CampaignSort.endingSoon:
+        return 'Segera berakhir';
+    }
+  }
+
+  String get sortLabel => labelForSort(sortOption.value);
+
+  /// Campaigns after applying the active search query, category chip and sort.
+  List<CampaignItem> get filteredCampaigns {
+    final query = searchQuery.value.trim().toLowerCase();
+    final index = selectedCategory.value;
+    final category = index >= 0 && index < categories.length
+        ? categories[index]
+        : categories.first;
+    final results = campaigns.where((campaign) {
+      final matchesCategory = index == 0 || campaign.category == category;
+      final matchesQuery = query.isEmpty ||
+          campaign.title.toLowerCase().contains(query) ||
+          campaign.organizer.toLowerCase().contains(query);
+      return matchesCategory && matchesQuery;
+    }).toList();
+
+    switch (sortOption.value) {
+      case CampaignSort.newest:
+        break;
+      case CampaignSort.mostRaised:
+        results.sort((a, b) => _raisedAmount(b).compareTo(_raisedAmount(a)));
+        break;
+      case CampaignSort.endingSoon:
+        results.sort((a, b) => _daysLeft(a).compareTo(_daysLeft(b)));
+        break;
+    }
+    return results;
+  }
+
+  /// Parses "Rp150.000.000" into 150000000 for amount-based sorting.
+  int _raisedAmount(CampaignItem item) =>
+      int.tryParse(item.raisedLabel.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+  /// Parses the leading number from "14 hari lagi" for deadline sorting.
+  int _daysLeft(CampaignItem item) {
+    final match = RegExp(r'\d+').firstMatch(item.daysLeftLabel);
+    return match == null ? 1 << 30 : int.parse(match.group(0)!);
+  }
+
+  String get resultCountLabel {
+    if (isLoading.value) return 'Memuat kampanye...';
+    if (hasError.value) return 'Gagal memuat kampanye';
+    return 'Menampilkan ${filteredCampaigns.length} kampanye';
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadCampaigns();
+  }
+
+  Future<void> loadCampaigns() async {
+    isLoading.value = true;
+    hasError.value = false;
+    try {
+      final items = await _repository.fetchCampaignItems();
+      campaigns.assignAll(items);
+    } catch (_) {
+      hasError.value = true;
+      campaigns.clear();
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   void onCategorySelected(int index) => selectedCategory.value = index;
 
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
-  }
+  void onSearchChanged(String value) => searchQuery.value = value;
+
+  void onSortSelected(CampaignSort option) => sortOption.value = option;
 }

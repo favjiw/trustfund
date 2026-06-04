@@ -47,7 +47,7 @@ class SegmentedTabs extends StatelessWidget {
                           ? AppColors.primary
                           : AppColors.textSecondary,
                       fontWeight:
-                      selected ? FontWeight.w700 : FontWeight.w500,
+                          selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ),

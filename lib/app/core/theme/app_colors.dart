@@ -44,6 +44,7 @@ class AppColors {
   static const Color navInactive = Color(0xFF9CA3AF);
   static const Color shieldWatermark = Color(0xFFD9D9E8);
   static const Color imagePlaceholder = Color(0xFFEDEDF2);
+  static const Color skeletonBase = Color(0xFFE2E2EC);
 
   // Cards, pills & lists
   static const Color darkCard = Color(0xFF3B4470);
@@ -69,4 +70,7 @@ class AppColors {
 
   // Destructive
   static const Color danger = Color(0xFFDC2626);
+
+  // Neutral
+  static const Color black = Color(0xFF000000);
 }

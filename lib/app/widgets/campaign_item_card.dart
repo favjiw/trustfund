@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_text_styles.dart';
 import '../data/models/campaign_item.dart';
+import 'campaign_bookmark.dart';
 import 'category_pill.dart';
 import 'funding_summary_box.dart';
 import 'initial_avatar.dart';
@@ -54,6 +55,11 @@ class CampaignItemCard extends StatelessWidget {
                   top: AppSpacing.md.h,
                   right: AppSpacing.md.w,
                   child: CategoryPill(label: campaign.category),
+                ),
+                Positioned(
+                  bottom: AppSpacing.sm.h,
+                  right: AppSpacing.sm.w,
+                  child: CampaignBookmark(id: campaign.id),
                 ),
               ],
             ),

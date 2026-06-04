@@ -7,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/campaign_detail.dart';
 import '../../../widgets/app_back_button.dart';
+import '../../../widgets/campaign_bookmark.dart';
 import '../../../widgets/category_pill.dart';
 import '../../../widgets/donation_progress_bar.dart';
 import '../../../widgets/info_banner.dart';
@@ -14,6 +15,8 @@ import '../../../widgets/milestone_tile.dart';
 import '../../../widgets/network_image_box.dart';
 import '../../../widgets/primary_button.dart';
 import '../../../widgets/rab_table.dart';
+import '../../../widgets/skeleton_box.dart';
+import '../../../widgets/state_message.dart';
 import '../../../widgets/status_pill.dart';
 import '../../../widgets/trust_score_pill.dart';
 import '../../../widgets/underline_tabs.dart';
@@ -25,7 +28,6 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    final detail = controller.detail;
     return Scaffold(
       backgroundColor: AppColors.homeBackground,
       body: SafeArea(
@@ -34,45 +36,128 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
           children: [
             _buildTopBar(),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildHeroImage(detail),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacing.xl.w,
-                      AppSpacing.lg.h,
-                      AppSpacing.xl.w,
-                      AppSpacing.xxl.h,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTitleBlock(detail),
-                        SizedBox(height: AppSpacing.lg.h),
-                        _buildFunding(detail),
-                        SizedBox(height: AppSpacing.lg.h),
-                        _buildStatsRow(detail),
-                        SizedBox(height: AppSpacing.xl.h),
-                        Obx(
-                          () => UnderlineTabs(
-                            labels: controller.tabs,
-                            selectedIndex: controller.selectedTab.value,
-                            onChanged: controller.onTabSelected,
-                          ),
-                        ),
-                        SizedBox(height: AppSpacing.lg.h),
-                        Obx(() => _buildTabContent(detail)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: Obx(() {
+                if (controller.hasError.value) {
+                  return StateMessage.error(onRetry: controller.loadDetail);
+                }
+                if (controller.isLoading.value) {
+                  return _buildDetailSkeleton();
+                }
+                final detail = controller.detail.value;
+                if (detail == null) {
+                  return const StateMessage.empty();
+                }
+                return _buildContent(detail);
+              }),
             ),
             _buildBottomBar(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildContent(CampaignDetail detail) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        _buildHeroImage(detail),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.xl.w,
+            AppSpacing.lg.h,
+            AppSpacing.xl.w,
+            AppSpacing.xxl.h,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTitleBlock(detail),
+              SizedBox(height: AppSpacing.lg.h),
+              _buildFunding(detail),
+              SizedBox(height: AppSpacing.lg.h),
+              _buildStatsRow(detail),
+              SizedBox(height: AppSpacing.xl.h),
+              Obx(
+                () => UnderlineTabs(
+                  labels: controller.tabs,
+                  selectedIndex: controller.selectedTab.value,
+                  onChanged: controller.onTabSelected,
+                ),
+              ),
+              SizedBox(height: AppSpacing.lg.h),
+              Obx(() => _buildTabContent(detail)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailSkeleton() {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w),
+          child: SkeletonBox(
+            height: 200.h,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.xl.w,
+            AppSpacing.lg.h,
+            AppSpacing.xl.w,
+            AppSpacing.xxl.h,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(width: double.infinity, height: 22.h),
+              SizedBox(height: AppSpacing.sm.h),
+              SkeletonBox(width: 220.w, height: 22.h),
+              SizedBox(height: AppSpacing.lg.h),
+              SkeletonBox(
+                width: double.infinity,
+                height: 52.h,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+              ),
+              SizedBox(height: AppSpacing.lg.h),
+              SkeletonBox(width: 180.w, height: 24.h),
+              SizedBox(height: AppSpacing.md.h),
+              SkeletonBox(width: double.infinity, height: 8.h),
+              SizedBox(height: AppSpacing.lg.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: SkeletonBox(
+                      height: 56.h,
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.radiusMd.r),
+                    ),
+                  ),
+                  SizedBox(width: AppSpacing.md.w),
+                  Expanded(
+                    child: SkeletonBox(
+                      height: 56.h,
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.radiusMd.r),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: AppSpacing.xl.h),
+              SkeletonBox(width: double.infinity, height: 14.h),
+              SizedBox(height: AppSpacing.sm.h),
+              SkeletonBox(width: double.infinity, height: 14.h),
+              SizedBox(height: AppSpacing.sm.h),
+              SkeletonBox(width: 240.w, height: 14.h),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -93,12 +178,18 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
             ),
           ),
           Icon(Icons.share_outlined, size: 22.sp, color: AppColors.textPrimary),
-          SizedBox(width: AppSpacing.lg.w),
-          Icon(
-            Icons.bookmark_border_rounded,
-            size: 22.sp,
-            color: AppColors.textPrimary,
-          ),
+          SizedBox(width: AppSpacing.sm.w),
+          Obx(() {
+            final detail = controller.detail.value;
+            if (detail == null) {
+              return Icon(
+                Icons.bookmark_border_rounded,
+                size: 22.sp,
+                color: AppColors.textPrimary,
+              );
+            }
+            return CampaignBookmark(id: detail.id, onLight: true);
+          }),
         ],
       ),
     );
@@ -403,9 +494,15 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
             _buildDonorAvatars(),
             SizedBox(width: AppSpacing.md.w),
             Expanded(
-              child: PrimaryButton(
-                label: 'Donasi Sekarang',
-                onPressed: controller.goToDonation,
+              child: Obx(
+                () => PrimaryButton(
+                  label: 'Donasi Sekarang',
+                  onPressed: controller.isLoading.value ||
+                          controller.hasError.value ||
+                          controller.detail.value == null
+                      ? null
+                      : controller.goToDonation,
+                ),
               ),
             ),
           ],

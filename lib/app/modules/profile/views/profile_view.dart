@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/utils/app_dialogs.dart';
 import '../../../widgets/network_image_box.dart';
 import '../../../widgets/profile_menu_section.dart';
 import '../../../widgets/profile_menu_tile.dart';
@@ -64,10 +65,14 @@ class ProfileView extends GetView<ProfileController> {
           style: AppTextStyles.h3Bold.copyWith(color: AppColors.textPrimary),
         ),
         const Spacer(),
-        Icon(
-          Icons.settings_outlined,
-          size: 24.sp,
-          color: AppColors.textPrimary,
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => AppDialogs.comingSoon('Pengaturan'),
+          child: Icon(
+            Icons.settings_outlined,
+            size: 24.sp,
+            color: AppColors.textPrimary,
+          ),
         ),
       ],
     );
@@ -124,7 +129,7 @@ class ProfileView extends GetView<ProfileController> {
           SizedBox(width: AppSpacing.sm.w),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {},
+            onTap: () => AppDialogs.comingSoon('Edit Profil'),
             child: Text(
               'Edit\nProfil',
               textAlign: TextAlign.right,
@@ -209,17 +214,17 @@ class ProfileView extends GetView<ProfileController> {
         ProfileMenuTile(
           icon: Icons.history_rounded,
           label: 'Riwayat Donasi',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Riwayat Donasi'),
         ),
         ProfileMenuTile(
           icon: Icons.bookmark_border_rounded,
           label: 'Kampanye Tersimpan',
-          onTap: () {},
+          onTap: controller.goToSaved,
         ),
         ProfileMenuTile(
           icon: Icons.insert_chart_outlined_rounded,
           label: 'Laporan Dampak Saya',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Laporan Dampak Saya'),
         ),
       ],
     );
@@ -232,23 +237,23 @@ class ProfileView extends GetView<ProfileController> {
         ProfileMenuTile(
           icon: Icons.credit_card_rounded,
           label: 'Metode Pembayaran',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Metode Pembayaran'),
         ),
         ProfileMenuTile(
           icon: Icons.fingerprint_rounded,
           label: 'Verifikasi Identitas (KYC)',
           trailing: const StatusPill.done(),
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Verifikasi Identitas (KYC)'),
         ),
         ProfileMenuTile(
           icon: Icons.lock_outline_rounded,
           label: 'Keamanan & Kata Sandi',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Keamanan & Kata Sandi'),
         ),
         ProfileMenuTile(
           icon: Icons.notifications_none_rounded,
           label: 'Notifikasi',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Notifikasi'),
         ),
       ],
     );
@@ -261,17 +266,17 @@ class ProfileView extends GetView<ProfileController> {
         ProfileMenuTile(
           icon: Icons.help_outline_rounded,
           label: 'Pusat Bantuan',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Pusat Bantuan'),
         ),
         ProfileMenuTile(
           icon: Icons.info_outline_rounded,
           label: 'Tentang TrustFund',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Tentang TrustFund'),
         ),
         ProfileMenuTile(
           icon: Icons.privacy_tip_outlined,
           label: 'Syarat & Kebijakan Privasi',
-          onTap: () {},
+          onTap: () => AppDialogs.comingSoon('Syarat & Kebijakan Privasi'),
         ),
       ],
     );
