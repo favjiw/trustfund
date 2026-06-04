@@ -11,6 +11,11 @@ abstract class Routes {
   static const HOME = _Paths.HOME;
   static const BOTNAVBAR = _Paths.BOTNAVBAR;
   static const CAMPAIGN = _Paths.CAMPAIGN;
+  static const CAMPAIGN_DETAIL = _Paths.CAMPAIGN_DETAIL;
+  static const DONATION = _Paths.DONATION;
+  static const PAYMENT_INSTRUCTION = _Paths.PAYMENT_INSTRUCTION;
+  static const DONATION_SUCCESS = _Paths.DONATION_SUCCESS;
+  static const TRACK_DONATION = _Paths.TRACK_DONATION;
   static const SAVED = _Paths.SAVED;
   static const PROFILE = _Paths.PROFILE;
 }
@@ -26,6 +31,11 @@ abstract class _Paths {
   static const HOME = '/home';
   static const BOTNAVBAR = '/botnavbar';
   static const CAMPAIGN = '/campaign';
+  static const CAMPAIGN_DETAIL = '/campaign-detail';
+  static const DONATION = '/donation';
+  static const PAYMENT_INSTRUCTION = '/payment-instruction';
+  static const DONATION_SUCCESS = '/donation-success';
+  static const TRACK_DONATION = '/track-donation';
   static const SAVED = '/saved';
   static const PROFILE = '/profile';
 }

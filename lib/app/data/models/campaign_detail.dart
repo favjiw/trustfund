@@ -1,7 +1,11 @@
-/// Data model for a campaign shown in the vertical list on the Kampanye page.
-class CampaignItem {
+import 'milestone_item.dart';
+import 'rab_item.dart';
+
+/// Rich data model backing the campaign detail page.
+class CampaignDetail {
   final String imageUrl;
   final String category;
+  final String location;
   final String title;
   final String organizer;
   final String organizerInitial;
@@ -11,12 +15,16 @@ class CampaignItem {
   final String targetLabel;
   final double progress;
   final String percentLabel;
-  final String donaturLabel;
-  final String daysLeftLabel;
+  final String donaturValue;
+  final String daysLeftValue;
+  final List<String> description;
+  final List<RabItem> rabItems;
+  final List<MilestoneItem> milestones;
 
-  const CampaignItem({
+  const CampaignDetail({
     required this.imageUrl,
     required this.category,
+    required this.location,
     required this.title,
     required this.organizer,
     required this.organizerInitial,
@@ -26,7 +34,10 @@ class CampaignItem {
     required this.targetLabel,
     required this.progress,
     required this.percentLabel,
-    required this.donaturLabel,
-    required this.daysLeftLabel,
+    required this.donaturValue,
+    required this.daysLeftValue,
+    required this.description,
+    required this.rabItems,
+    required this.milestones,
   });
 }

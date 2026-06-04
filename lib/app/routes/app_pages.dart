@@ -4,6 +4,16 @@ import '../modules/botnavbar/bindings/botnavbar_binding.dart';
 import '../modules/botnavbar/views/botnavbar_view.dart';
 import '../modules/campaign/bindings/campaign_binding.dart';
 import '../modules/campaign/views/campaign_view.dart';
+import '../modules/campaign_detail/bindings/campaign_detail_binding.dart';
+import '../modules/campaign_detail/views/campaign_detail_view.dart';
+import '../modules/donation/bindings/donation_binding.dart';
+import '../modules/donation/views/donation_view.dart';
+import '../modules/donation_success/bindings/donation_success_binding.dart';
+import '../modules/donation_success/views/donation_success_view.dart';
+import '../modules/payment_instruction/bindings/payment_instruction_binding.dart';
+import '../modules/payment_instruction/views/payment_instruction_view.dart';
+import '../modules/track_donation/bindings/track_donation_binding.dart';
+import '../modules/track_donation/views/track_donation_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -28,7 +38,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.LOGIN;
+  static const INITIAL = Routes.CAMPAIGN_DETAIL;
 
   static final routes = [
     GetPage(
@@ -75,6 +85,31 @@ class AppPages {
       name: _Paths.CAMPAIGN,
       page: () => const CampaignView(),
       binding: CampaignBinding(),
+    ),
+    GetPage(
+      name: _Paths.CAMPAIGN_DETAIL,
+      page: () => const CampaignDetailView(),
+      binding: CampaignDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.DONATION,
+      page: () => const DonationView(),
+      binding: DonationBinding(),
+    ),
+    GetPage(
+      name: _Paths.PAYMENT_INSTRUCTION,
+      page: () => const PaymentInstructionView(),
+      binding: PaymentInstructionBinding(),
+    ),
+    GetPage(
+      name: _Paths.DONATION_SUCCESS,
+      page: () => const DonationSuccessView(),
+      binding: DonationSuccessBinding(),
+    ),
+    GetPage(
+      name: _Paths.TRACK_DONATION,
+      page: () => const TrackDonationView(),
+      binding: TrackDonationBinding(),
     ),
     GetPage(
       name: _Paths.SAVED,

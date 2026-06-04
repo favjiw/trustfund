@@ -59,8 +59,13 @@ class AppColors {
   static const Color summaryBoxBg = Color(0xFFF3F4FA);
   static const Color pillBg = Color(0xFFEDEEF6);
   static const Color verifiedFundBg = Color(0xFFDDF3E6);
+  static const Color infoBg = Color(0xFFE3ECFD);
   static const Color progressTrack = Color(0xFFE5E7EB);
   static const Color sectionLabel = Color(0xFF9CA3AF);
+
+  // Warning / review
+  static const Color warning = Color(0xFFD97706);
+  static const Color warningBg = Color(0xFFFCEFDC);
 
   // Destructive
   static const Color danger = Color(0xFFDC2626);
