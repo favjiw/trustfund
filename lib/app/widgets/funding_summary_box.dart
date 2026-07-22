@@ -54,7 +54,7 @@ class FundingSummaryBox extends StatelessWidget {
                   ],
                 ),
               ),
-              if (percentLabel != null) ...[
+              if (percentLabel != null && percentLabel!.isNotEmpty) ...[
                 SizedBox(width: AppSpacing.sm.w),
                 Text(
                   percentLabel!,
@@ -66,8 +66,10 @@ class FundingSummaryBox extends StatelessWidget {
               ],
             ],
           ),
-          SizedBox(height: AppSpacing.md.h),
-          DonationProgressBar(value: progress, color: AppColors.success),
+          if (progress >= 0) ...[
+            SizedBox(height: AppSpacing.md.h),
+            DonationProgressBar(value: progress, color: AppColors.success),
+          ],
         ],
       ),
     );

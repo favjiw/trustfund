@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 
+import '../../../core/services/auth_service.dart';
 import '../../../data/models/campaign.dart';
+import '../../../data/models/campaign_record.dart';
 import '../../../data/repositories/campaign_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
-  final String userName = 'Gilang';
+  String get userName => Get.find<AuthService>().currentUser.value?.name ?? '';
 
   final CampaignRepository _repository = CampaignRepository.instance;
 
@@ -18,11 +20,7 @@ class HomeController extends GetxController {
   final RxList<UrgentCampaign> urgentCampaigns = <UrgentCampaign>[].obs;
   final RxList<PopularCampaign> popularCampaigns = <PopularCampaign>[].obs;
 
-  final List<String> categories = const [
-    'Semua',
-    'Infrastruktur',
-    'Pendidikan',
-  ];
+  final List<String> categories = Campaign.filterCategories;
 
   /// Urgent campaigns after applying the active search query and category chip.
   List<UrgentCampaign> get filteredUrgentCampaigns => urgentCampaigns
@@ -57,10 +55,14 @@ class HomeController extends GetxController {
     isLoading.value = true;
     hasError.value = false;
     try {
-      final urgent = await _repository.fetchUrgent();
-      final popular = await _repository.fetchPopular();
-      urgentCampaigns.assignAll(urgent);
-      popularCampaigns.assignAll(popular);
+      // Fetched in parallel so both projections share one in-flight API call
+      // (sequential awaits would download the heavy list twice).
+      final results = await Future.wait([
+        _repository.fetchUrgent(),
+        _repository.fetchPopular(),
+      ]);
+      urgentCampaigns.assignAll(results[0] as List<UrgentCampaign>);
+      popularCampaigns.assignAll(results[1] as List<PopularCampaign>);
     } catch (_) {
       hasError.value = true;
       urgentCampaigns.clear();

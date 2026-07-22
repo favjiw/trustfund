@@ -40,10 +40,10 @@ class TrackDonationView extends GetView<TrackDonationController> {
                   SizedBox(height: AppSpacing.xl.h),
                   _buildProgressHeader(),
                   SizedBox(height: AppSpacing.md.h),
-                  DonationProgressBar(
-                    value: controller.disbursedProgress,
+                  Obx(() => DonationProgressBar(
+                    value: controller.disbursedProgress.value,
                     color: AppColors.primary,
-                  ),
+                  )),
                   SizedBox(height: AppSpacing.xl.h),
                   _buildTimeline(),
                   SizedBox(height: AppSpacing.lg.h),
@@ -184,27 +184,35 @@ class TrackDonationView extends GetView<TrackDonationController> {
             style: AppTextStyles.h4Bold.copyWith(color: AppColors.textPrimary),
           ),
         ),
-        Text(
-          'Dana tersalurkan ${controller.disbursedPercentLabel}',
+        Obx(() => Text(
+          'Dana tersalurkan ${controller.disbursedPercentLabel.value}',
           style: AppTextStyles.c1Medium.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.w700,
           ),
-        ),
+        )),
       ],
     );
   }
 
   Widget _buildTimeline() {
-    return Column(
-      children: List.generate(controller.steps.length, (index) {
-        return DisbursementTile(
-          step: controller.steps[index],
-          isLast: index == controller.steps.length - 1,
-          onViewProof: () => controller.viewProof(index),
+    return Obx(() {
+      if (controller.steps.isEmpty) {
+        return const Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Center(child: CircularProgressIndicator()),
         );
-      }),
-    );
+      }
+      return Column(
+        children: List.generate(controller.steps.length, (index) {
+          return DisbursementTile(
+            step: controller.steps[index],
+            isLast: index == controller.steps.length - 1,
+            onViewProof: () => controller.viewProof(index),
+          );
+        }),
+      );
+    });
   }
 
   Widget _buildBottomBar() {

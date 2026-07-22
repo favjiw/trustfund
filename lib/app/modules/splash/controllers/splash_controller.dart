@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../core/services/auth_service.dart';
 import '../../../routes/app_pages.dart';
 
 class SplashController extends GetxController {
@@ -11,6 +12,12 @@ class SplashController extends GetxController {
 
   Future<void> _navigate() async {
     await Future.delayed(const Duration(seconds: 2));
-    Get.offAllNamed(Routes.LOGIN);
+
+    final auth = Get.find<AuthService>();
+    if (auth.isLoggedIn) {
+      Get.offAllNamed(Routes.BOTNAVBAR);
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
   }
 }

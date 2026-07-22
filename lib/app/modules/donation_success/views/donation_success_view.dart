@@ -8,7 +8,9 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/donation_receipt.dart';
 import '../../../widgets/copy_field.dart';
 import '../../../widgets/detail_row.dart';
+import '../../../widgets/donor_network_graph.dart';
 import '../../../widgets/primary_button.dart';
+import '../../../widgets/skeleton_box.dart';
 import '../../../widgets/status_pill.dart';
 import '../../../widgets/verified_badge.dart';
 import '../controllers/donation_success_controller.dart';
@@ -38,7 +40,9 @@ class DonationSuccessView extends GetView<DonationSuccessController> {
                   SizedBox(height: AppSpacing.xl.h),
                   _buildAmountCard(receipt),
                   SizedBox(height: AppSpacing.lg.h),
-                  _buildOnChainCard(receipt),
+                  _buildOnChainCard(),
+                  SizedBox(height: AppSpacing.lg.h),
+                  _buildDonorNetworkCard(),
                   SizedBox(height: AppSpacing.lg.h),
                   _buildNote(),
                 ],
@@ -156,7 +160,7 @@ class DonationSuccessView extends GetView<DonationSuccessController> {
     );
   }
 
-  Widget _buildOnChainCard(DonationReceipt receipt) {
+  Widget _buildOnChainCard() {
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg.w),
       decoration: BoxDecoration(
@@ -180,37 +184,191 @@ class DonationSuccessView extends GetView<DonationSuccessController> {
             ],
           ),
           SizedBox(height: AppSpacing.md.h),
-          CopyField(
-            label: 'TRANSACTION HASH',
-            value: receipt.transactionHash,
-            onCopy: controller.copyTransactionHash,
-          ),
-          SizedBox(height: AppSpacing.md.h),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: controller.openExplorer,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+          Obx(() {
+            // Deposit not yet confirmed on chain (e.g. status still PAID).
+            if (!controller.hasProof) {
+              // Polling gave up — offer a manual re-check.
+              if (controller.proofUnavailable.value) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pembayaran diterima. Bukti on-chain belum tersedia — '
+                      'transaksi masih diproses di blockchain. Coba muat ulang '
+                      'beberapa saat lagi.',
+                      style: AppTextStyles.c2Regular
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                    SizedBox(height: AppSpacing.sm.h),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: controller.refreshProof,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.refresh_rounded,
+                              size: 16.sp, color: AppColors.primary),
+                          SizedBox(width: AppSpacing.xs.w),
+                          Text(
+                            'Muat Ulang',
+                            style: AppTextStyles.c1Medium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  SizedBox(
+                    width: 16.w,
+                    height: 16.w,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: AppSpacing.sm.w),
+                  Expanded(
+                    child: Text(
+                      'Pembayaran diterima. Menunggu konfirmasi transaksi '
+                      'di blockchain…',
+                      style: AppTextStyles.c2Regular
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CopyField(
+                  label: 'TRANSACTION HASH',
+                  value: controller.displayHash,
+                  onCopy: controller.copyTransactionHash,
                 ),
-              ),
-              icon: Icon(Icons.open_in_new_rounded, size: 16.sp),
-              label: Text(
-                'Lihat di Blockchain Explorer',
-                style: AppTextStyles.c1Medium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
+                SizedBox(height: AppSpacing.md.h),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: controller.openExplorer,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.md.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.radiusMd.r),
+                      ),
+                    ),
+                    icon: Icon(Icons.open_in_new_rounded, size: 16.sp),
+                    label: Text(
+                      'Lihat di Blockchain Explorer',
+                      style: AppTextStyles.c1Medium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
+              ],
+            );
+          }),
         ],
       ),
     );
+  }
+
+  /// "Jaringan Donatur" card: shows where the user's contribution sits among
+  /// the campaign's other donors. Best-effort — hidden when the campaign id
+  /// is unknown, with a quiet retry when loading fails.
+  Widget _buildDonorNetworkCard() {
+    return Obx(() {
+      final graph = controller.donorGraph.value;
+      final isLoading = controller.isGraphLoading.value;
+      final hasError = controller.graphError.value;
+      if (graph == null && !isLoading && !hasError) {
+        return const SizedBox.shrink();
+      }
+
+      Widget content;
+      if (graph != null) {
+        content = DonorNetworkGraph(graph: graph);
+      } else if (isLoading) {
+        content = SkeletonBox(
+          height: 280.h,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd.r),
+        );
+      } else {
+        content = Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Gagal memuat jaringan donatur.',
+                style: AppTextStyles.c2Regular
+                    .copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: controller.loadDonorGraph,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.refresh_rounded,
+                      size: 16.sp, color: AppColors.primary),
+                  SizedBox(width: AppSpacing.xs.w),
+                  Text(
+                    'Muat Ulang',
+                    style: AppTextStyles.c1Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+
+      return Container(
+        padding: EdgeInsets.all(AppSpacing.lg.w),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.hub_outlined, size: 18.sp, color: AppColors.primary),
+                SizedBox(width: AppSpacing.sm.w),
+                Text(
+                  'Jaringan Donatur',
+                  style: AppTextStyles.p2Medium.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppSpacing.xs.h),
+            Text(
+              'Kontribusimu kini menjadi bagian dari jaringan kebaikan ini.',
+              style: AppTextStyles.c2Regular
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            SizedBox(height: AppSpacing.md.h),
+            content,
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildNote() {

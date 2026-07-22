@@ -61,7 +61,11 @@ class LoginView extends GetView<LoginController> {
                 ),
               ),
               SizedBox(height: AppSpacing.xl.h),
-              PrimaryButton(label: 'Masuk', onPressed: controller.login),
+              Obx(() => PrimaryButton(
+                    label: 'Masuk',
+                    isLoading: controller.isLoading.value,
+                    onPressed: controller.login,
+                  )),
               SizedBox(height: AppSpacing.xl.h),
               const _OrDivider(),
               SizedBox(height: AppSpacing.xl.h),

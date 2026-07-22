@@ -2,41 +2,63 @@ import 'package:get/get.dart';
 
 import '../../../data/models/disbursement_step.dart';
 import '../../../data/models/donation_receipt.dart';
+import '../../../data/models/milestone_item.dart';
+import '../../../data/repositories/campaign_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class TrackDonationController extends GetxController {
   late final DonationReceipt receipt;
 
-  final String disbursedPercentLabel = '45%';
-  final double disbursedProgress = 0.45;
-
-  final List<DisbursementStep> steps = const [
-    DisbursementStep(
-      title: 'Penggalangan Dana Awal',
-      amount: 'Rp45.000.000',
-      status: DisbursementStatus.disbursed,
-      detail: 'Divalidasi AI (skor 94%) · tercatat on-chain',
-      hasProof: true,
-    ),
-    DisbursementStep(
-      title: 'Pembelian Material',
-      amount: 'Rp60.000.000',
-      status: DisbursementStatus.reviewing,
-      detail: 'Menunggu validasi AI / review Pemda terkait kuitansi pembelian '
-          'material bangunan.',
-    ),
-    DisbursementStep(
-      title: 'Renovasi Fisik & Serah Terima',
-      amount: 'Rp95.000.000',
-      status: DisbursementStatus.waiting,
-    ),
-  ];
+  final RxString disbursedPercentLabel = '0%'.obs;
+  final RxDouble disbursedProgress = 0.0.obs;
+  final RxList<DisbursementStep> steps = <DisbursementStep>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     final arg = Get.arguments;
     receipt = arg is DonationReceipt ? arg : _fallbackReceipt();
+    _fetchDetail();
+  }
+
+  Future<void> _fetchDetail() async {
+    try {
+      final detail = await CampaignRepository.instance.fetchDetailById(receipt.campaignId);
+      
+      final mappedSteps = <DisbursementStep>[];
+      int totalMilestones = detail.milestones.length;
+      int completedMilestones = 0;
+
+      for (var ms in detail.milestones) {
+        DisbursementStatus status;
+        if (ms.status == MilestoneStatus.done) {
+          status = DisbursementStatus.disbursed;
+          completedMilestones++;
+        } else if (ms.status == MilestoneStatus.inProgress) {
+          status = DisbursementStatus.reviewing;
+        } else {
+          status = DisbursementStatus.waiting;
+        }
+
+        mappedSteps.add(DisbursementStep(
+          title: ms.title,
+          amount: ms.subtitle,
+          status: status,
+          detail: ms.statusLabel ?? 'Menunggu proses selanjutnya',
+          hasProof: ms.status == MilestoneStatus.done,
+        ));
+      }
+
+      steps.value = mappedSteps;
+      
+      if (totalMilestones > 0) {
+        final progress = completedMilestones / totalMilestones;
+        disbursedProgress.value = progress;
+        disbursedPercentLabel.value = '${(progress * 100).toInt()}%';
+      }
+    } catch (e) {
+      print('Error fetching campaign detail: $e');
+    }
   }
 
   void viewProof(int index) {
@@ -46,6 +68,7 @@ class TrackDonationController extends GetxController {
   void backToHome() => Get.offAllNamed(Routes.BOTNAVBAR);
 
   DonationReceipt _fallbackReceipt() => const DonationReceipt(
+        campaignId: 'cmrkpwxez0001fci7ni7koeie',
         campaignTitle: 'Bantu Renovasi Sekolah Dasar di Pelosok NTT',
         organizer: 'Yayasan Senyum Anak',
         imageUrl:

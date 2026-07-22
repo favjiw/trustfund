@@ -84,22 +84,25 @@ class CampaignView extends GetView<CampaignController> {
   }
 
   Widget _buildCategories() {
-    return Obx(
-      () => Row(
-        children: List.generate(controller.categories.length, (index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index == controller.categories.length - 1
-                  ? 0
-                  : AppSpacing.sm.w,
-            ),
-            child: CategoryChip(
-              label: controller.categories[index],
-              selected: controller.selectedCategory.value == index,
-              onTap: () => controller.onCategorySelected(index),
-            ),
-          );
-        }),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Obx(
+        () => Row(
+          children: List.generate(controller.categories.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index == controller.categories.length - 1
+                    ? 0
+                    : AppSpacing.sm.w,
+              ),
+              child: CategoryChip(
+                label: controller.categories[index],
+                selected: controller.selectedCategory.value == index,
+                onTap: () => controller.onCategorySelected(index),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../core/network/api_exceptions.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../routes/app_pages.dart';
 
 class LoginController extends GetxController {
-  /// The single demo account accepted by this UI build.
-  static const String _validEmail = 'gilangns@gmail.com';
-  static const String _validPassword = 'gilang123';
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void login() {
+  final isLoading = false.obs;
+
+  AuthService get _auth => Get.find<AuthService>();
+
+  Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
@@ -22,13 +24,18 @@ class LoginController extends GetxController {
       return;
     }
 
-    if (email.toLowerCase() != _validEmail || password != _validPassword) {
-      _showError('Email atau kata sandi salah.');
-      return;
+    isLoading.value = true;
+    try {
+      await _auth.login(email: email, password: password);
+      // Valid credentials: enter the main app shell, replacing the auth stack.
+      Get.offAllNamed(Routes.BOTNAVBAR);
+    } on ApiException catch (e) {
+      _showError(e.message);
+    } catch (_) {
+      _showError('Terjadi kesalahan. Coba lagi nanti.');
+    } finally {
+      isLoading.value = false;
     }
-
-    // Valid credentials: enter the main app shell, replacing the auth stack.
-    Get.offAllNamed(Routes.BOTNAVBAR);
   }
 
   void _showError(String message) {

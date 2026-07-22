@@ -81,7 +81,11 @@ class RegisterView extends GetView<RegisterController> {
                 controller: controller.confirmPasswordController,
               ),
               SizedBox(height: AppSpacing.xxxl.h),
-              PrimaryButton(label: 'Daftar', onPressed: controller.register),
+              Obx(() => PrimaryButton(
+                    label: 'Daftar',
+                    isLoading: controller.isLoading.value,
+                    onPressed: controller.register,
+                  )),
               SizedBox(height: AppSpacing.xxl.h),
               Center(
                 child: Row(

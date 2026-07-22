@@ -16,6 +16,9 @@ class DonationProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A negative value signals "funding progress unknown" (the list/detail API
+    // does not expose a reliable raised amount) — render nothing in that case.
+    if (value < 0) return const SizedBox.shrink();
     final clamped = value.clamp(0.0, 1.0);
     return ClipRRect(
       borderRadius: BorderRadius.circular(8.r),

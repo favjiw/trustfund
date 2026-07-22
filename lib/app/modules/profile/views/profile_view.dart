@@ -10,7 +10,6 @@ import '../../../widgets/network_image_box.dart';
 import '../../../widgets/profile_menu_section.dart';
 import '../../../widgets/profile_menu_tile.dart';
 import '../../../widgets/status_pill.dart';
-import '../../../widgets/verified_badge.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -79,68 +78,89 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   Widget _buildProfileCard() {
-    return Container(
-      padding: EdgeInsets.all(AppSpacing.lg.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          NetworkImageBox(
-            url: controller.avatarUrl,
-            width: 56.w,
-            height: 56.w,
-            borderRadius: BorderRadius.circular(56.r),
-          ),
-          SizedBox(width: AppSpacing.md.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        controller.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.h4Bold
-                            .copyWith(color: AppColors.textPrimary),
+    return Obx(
+      () => Container(
+        padding: EdgeInsets.all(AppSpacing.lg.w),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildAvatar(),
+            SizedBox(width: AppSpacing.md.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          controller.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.h4Bold
+                              .copyWith(color: AppColors.textPrimary),
+                        ),
                       ),
-                    ),
-                    if (controller.verified) ...[
-                      SizedBox(width: AppSpacing.sm.w),
-                      const StatusPill.verified(),
+                      if (controller.verified) ...[
+                        SizedBox(width: AppSpacing.sm.w),
+                        const StatusPill.verified(),
+                      ],
                     ],
-                  ],
-                ),
-                SizedBox(height: AppSpacing.xs.h),
-                Text(
-                  controller.email,
-                  style: AppTextStyles.c1Regular
-                      .copyWith(color: AppColors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: AppSpacing.sm.w),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => AppDialogs.comingSoon('Edit Profil'),
-            child: Text(
-              'Edit\nProfil',
-              textAlign: TextAlign.right,
-              style: AppTextStyles.c1Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+                  ),
+                  SizedBox(height: AppSpacing.xs.h),
+                  Text(
+                    controller.email,
+                    style: AppTextStyles.c1Regular
+                        .copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            SizedBox(width: AppSpacing.sm.w),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => AppDialogs.comingSoon('Edit Profil'),
+              child: Text(
+                'Edit\nProfil',
+                textAlign: TextAlign.right,
+                style: AppTextStyles.c1Medium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    if (controller.avatarUrl.isEmpty) {
+      return Container(
+        width: 56.w,
+        height: 56.w,
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          color: AppColors.primary,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          controller.initial,
+          style: AppTextStyles.h4Bold.copyWith(color: AppColors.white),
+        ),
+      );
+    }
+    return NetworkImageBox(
+      url: controller.avatarUrl,
+      width: 56.w,
+      height: 56.w,
+      borderRadius: BorderRadius.circular(56.r),
     );
   }
 

@@ -13,6 +13,7 @@ abstract class Routes {
   static const CAMPAIGN = _Paths.CAMPAIGN;
   static const CAMPAIGN_DETAIL = _Paths.CAMPAIGN_DETAIL;
   static const DONATION = _Paths.DONATION;
+  static const DONATION_QRIS = _Paths.DONATION_QRIS;
   static const PAYMENT_INSTRUCTION = _Paths.PAYMENT_INSTRUCTION;
   static const DONATION_SUCCESS = _Paths.DONATION_SUCCESS;
   static const TRACK_DONATION = _Paths.TRACK_DONATION;
@@ -33,6 +34,7 @@ abstract class _Paths {
   static const CAMPAIGN = '/campaign';
   static const CAMPAIGN_DETAIL = '/campaign-detail';
   static const DONATION = '/donation';
+  static const DONATION_QRIS = '/donation-qris';
   static const PAYMENT_INSTRUCTION = '/payment-instruction';
   static const DONATION_SUCCESS = '/donation-success';
   static const TRACK_DONATION = '/track-donation';

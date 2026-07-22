@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/network/api_exceptions.dart';
+import '../../../core/services/auth_service.dart';
 import '../../../data/models/campaign_detail.dart';
+import '../../../data/models/donation_charge.dart';
 import '../../../data/models/donation_nominal.dart';
-import '../../../data/models/donation_receipt.dart';
 import '../../../data/models/payment_method.dart';
+import '../../../data/repositories/donation_repository.dart';
 import '../../../routes/app_pages.dart';
 
 class DonationController extends GetxController {
+  final DonationRepository _repository = DonationRepository.instance;
+
   final TextEditingController customAmountController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
 
@@ -17,6 +22,10 @@ class DonationController extends GetxController {
   final RxInt selectedPayment = 1.obs;
   final RxBool hideName = false.obs;
 
+  /// True while the donation is being created (Snap token generation).
+  final RxBool isSubmitting = false.obs;
+
+  late final String campaignId;
   late final String campaignTitle;
   late final String campaignOrganizer;
   late final String campaignImageUrl;
@@ -45,6 +54,7 @@ class DonationController extends GetxController {
     super.onInit();
     final arg = Get.arguments;
     final detail = arg is CampaignDetail ? arg : null;
+    campaignId = detail?.id ?? '';
     campaignTitle =
         detail?.title ?? 'Pembangunan Sekolah Terpencil di Maluku';
     campaignOrganizer = detail?.organizer ?? 'Yayasan Senyum Anak';
@@ -101,7 +111,17 @@ class DonationController extends GetxController {
     return buffer.toString();
   }
 
-  void submitDonation() {
+  /// The donor's display name for this donation, honouring the "anonymous"
+  /// toggle and falling back to a generic name when not signed in.
+  String get _donorName {
+    if (hideName.value) return 'Hamba Allah';
+    final name = Get.find<AuthService>().currentUser.value?.name;
+    return (name != null && name.trim().isNotEmpty) ? name.trim() : 'Hamba Allah';
+  }
+
+  Future<void> submitDonation() async {
+    if (isSubmitting.value) return;
+
     if (totalAmount <= 0) {
       Get.snackbar(
         'Nominal belum dipilih',
@@ -111,36 +131,50 @@ class DonationController extends GetxController {
       return;
     }
 
-    final paymentIndex = selectedPayment.value;
-    final paymentLabel =
-        (paymentIndex >= 0 && paymentIndex < paymentMethods.length)
-            ? paymentMethods[paymentIndex].label
-            : paymentMethods.first.label;
+    if (campaignId.isEmpty) {
+      Get.snackbar(
+        'Kampanye tidak valid',
+        'Tidak dapat memproses donasi untuk kampanye ini.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
 
-    final receipt = DonationReceipt(
-      campaignTitle: campaignTitle,
-      organizer: campaignOrganizer,
-      imageUrl: campaignImageUrl,
-      verified: campaignVerified,
-      amount: totalAmount,
-      formattedAmount: formattedTotal,
-      paymentLabel: paymentLabel,
-      vaNumber: '8808 0812 3456 7890',
-      dateLabel: _formatDate(DateTime.now()),
-      transactionHash: '0x7a3f...9b21',
-    );
+    isSubmitting.value = true;
+    try {
+      final charge = await _repository.startDonation(
+        campaignId: campaignId,
+        donorName: _donorName,
+        amount: totalAmount,
+      );
 
-    Get.toNamed(Routes.PAYMENT_INSTRUCTION, arguments: receipt);
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-    ];
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(date.day)} ${months[date.month - 1]} ${date.year}, '
-        '${two(date.hour)}:${two(date.minute)}';
+      Get.toNamed(
+        Routes.DONATION_QRIS,
+        arguments: DonationPaymentArgs(
+          charge: charge,
+          campaignId: campaignId,
+          campaignTitle: campaignTitle,
+          organizer: campaignOrganizer,
+          imageUrl: campaignImageUrl,
+          verified: campaignVerified,
+          donorName: _donorName,
+        ),
+      );
+    } on ApiException catch (e) {
+      Get.snackbar(
+        'Gagal memproses donasi',
+        e.message,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (_) {
+      Get.snackbar(
+        'Gagal memproses donasi',
+        'Terjadi kesalahan. Coba lagi nanti.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isSubmitting.value = false;
+    }
   }
 
   @override

@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 
+import '../../../core/utils/url_launcher_helper.dart';
 import '../../../data/models/campaign_detail.dart';
 import '../../../data/models/campaign_item.dart';
+import '../../../data/models/donor_graph.dart';
 import '../../../data/repositories/campaign_repository.dart';
 import '../../../routes/app_pages.dart';
 
@@ -44,7 +46,38 @@ class CampaignDetailController extends GetxController {
     return 'c1';
   }
 
-  void onTabSelected(int index) => selectedTab.value = index;
+  // ── Donor graph (Donatur tab) ─────────────────────────────────────────
+
+  static const int _donaturTabIndex = 3;
+
+  final RxBool isGraphLoading = false.obs;
+  final RxBool graphError = false.obs;
+  final Rxn<DonorGraph> donorGraph = Rxn<DonorGraph>();
+
+  void onTabSelected(int index) {
+    selectedTab.value = index;
+    // Fetched lazily so opening the detail page stays one request.
+    if (index == _donaturTabIndex &&
+        donorGraph.value == null &&
+        !isGraphLoading.value) {
+      loadDonorGraph();
+    }
+  }
+
+  Future<void> loadDonorGraph() async {
+    isGraphLoading.value = true;
+    graphError.value = false;
+    try {
+      donorGraph.value = await _repository.fetchDonorGraph(_resolveId());
+    } catch (_) {
+      graphError.value = true;
+    } finally {
+      isGraphLoading.value = false;
+    }
+  }
+
+  /// Opens the campaign's on-chain creation transaction in the block explorer.
+  void openExplorer() => openExternalUrl(detail.value?.explorerUrl);
 
   void goToDonation() {
     final current = detail.value;

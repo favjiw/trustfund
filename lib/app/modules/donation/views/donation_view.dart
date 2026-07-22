@@ -9,7 +9,6 @@ import '../../../widgets/app_back_button.dart';
 import '../../../widgets/campaign_mini_card.dart';
 import '../../../widgets/info_banner.dart';
 import '../../../widgets/nominal_option_card.dart';
-import '../../../widgets/payment_method_tile.dart';
 import '../controllers/donation_controller.dart';
 
 class DonationView extends GetView<DonationController> {
@@ -45,10 +44,6 @@ class DonationView extends GetView<DonationController> {
                   _buildNominalGrid(),
                   SizedBox(height: AppSpacing.md.h),
                   _buildCustomAmountField(),
-                  SizedBox(height: AppSpacing.xl.h),
-                  _sectionTitle('Metode Pembayaran'),
-                  SizedBox(height: AppSpacing.md.h),
-                  _buildPaymentMethods(),
                   SizedBox(height: AppSpacing.xl.h),
                   _buildMessageField(),
                   SizedBox(height: AppSpacing.lg.h),
@@ -173,29 +168,6 @@ class DonationView extends GetView<DonationController> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethods() {
-    return Obx(
-      () => Column(
-        children: List.generate(controller.paymentMethods.length, (index) {
-          final method = controller.paymentMethods[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: index == controller.paymentMethods.length - 1
-                  ? 0
-                  : AppSpacing.md.h,
-            ),
-            child: PaymentMethodTile(
-              icon: method.icon,
-              label: method.label,
-              selected: controller.selectedPayment.value == index,
-              onTap: () => controller.onPaymentSelected(index),
-            ),
-          );
-        }),
       ),
     );
   }
@@ -328,18 +300,31 @@ class DonationView extends GetView<DonationController> {
                   ),
                   child: Material(
                     color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: radius,
-                      onTap: controller.submitDonation,
-                      child: Center(
-                        child: Obx(
-                          () => Text(
-                            'Donasi ${controller.formattedTotal}',
-                            style: AppTextStyles.p2Medium.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                    child: Obx(
+                      () => InkWell(
+                        borderRadius: radius,
+                        onTap: controller.isSubmitting.value
+                            ? null
+                            : controller.submitDonation,
+                        child: Center(
+                          child: controller.isSubmitting.value
+                              ? SizedBox(
+                                  width: 22.w,
+                                  height: 22.w,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(
+                                      AppColors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  'Donasi ${controller.formattedTotal}',
+                                  style: AppTextStyles.p2Medium.copyWith(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                     ),

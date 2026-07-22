@@ -10,6 +10,7 @@ import '../../../widgets/app_back_button.dart';
 import '../../../widgets/campaign_bookmark.dart';
 import '../../../widgets/category_pill.dart';
 import '../../../widgets/donation_progress_bar.dart';
+import '../../../widgets/donor_network_graph.dart';
 import '../../../widgets/info_banner.dart';
 import '../../../widgets/milestone_tile.dart';
 import '../../../widgets/network_image_box.dart';
@@ -406,12 +407,15 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
           ),
         ),
         SizedBox(height: AppSpacing.sm.h),
-        const InfoBanner(
+        InfoBanner(
           icon: Icons.shield_outlined,
           title: 'Transparansi Blockchain Aktif',
           body: 'Semua transaksi tercatat di blockchain untuk keamanan dan '
               'akuntabilitas publik.',
-          actionLabel: 'LIHAT DI EXPLORER',
+          actionLabel: detail.explorerUrl.isEmpty
+              ? null
+              : 'LIHAT BUKTI DI EXPLORER',
+          onAction: controller.openExplorer,
         ),
       ],
     );
@@ -463,16 +467,23 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
   }
 
   Widget _buildDonaturTab() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl.h),
-      child: Center(
-        child: Text(
-          'Daftar donatur akan tampil di sini.',
-          style: AppTextStyles.c1Regular
-              .copyWith(color: AppColors.textSecondary),
-        ),
-      ),
-    );
+    if (controller.graphError.value) {
+      return StateMessage.error(onRetry: controller.loadDonorGraph);
+    }
+    final graph = controller.donorGraph.value;
+    if (controller.isGraphLoading.value || graph == null) {
+      return Column(
+        children: [
+          SkeletonBox(
+            height: 300.h,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLg.r),
+          ),
+          SizedBox(height: AppSpacing.lg.h),
+          SkeletonBox(width: 240.w, height: 28.h),
+        ],
+      );
+    }
+    return DonorNetworkGraph(graph: graph);
   }
 
   Widget _buildBottomBar() {
@@ -494,16 +505,23 @@ class CampaignDetailView extends GetView<CampaignDetailController> {
             _buildDonorAvatars(),
             SizedBox(width: AppSpacing.md.w),
             Expanded(
-              child: Obx(
-                () => PrimaryButton(
-                  label: 'Donasi Sekarang',
+              child: Obx(() {
+                final detail = controller.detail.value;
+                final canDonate = detail?.canDonate ?? false;
+                return PrimaryButton(
+                  label: !canDonate && detail != null
+                      ? (detail.isTargetReached
+                          ? 'Target Tercapai'
+                          : 'Donasi Ditutup')
+                      : 'Donasi Sekarang',
                   onPressed: controller.isLoading.value ||
                           controller.hasError.value ||
-                          controller.detail.value == null
+                          detail == null ||
+                          !canDonate
                       ? null
                       : controller.goToDonation,
-                ),
-              ),
+                );
+              }),
             ),
           ],
         ),

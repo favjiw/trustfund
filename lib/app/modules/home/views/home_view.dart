@@ -67,11 +67,15 @@ class HomeView extends GetView<HomeController> {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            'Hi, ${controller.userName}',
-            style: AppTextStyles.h3Bold.copyWith(
-              color: AppColors.textPrimary,
-              fontSize: 22.sp,
+          child: Obx(
+            () => Text(
+              'Hi, ${controller.userName}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.h3Bold.copyWith(
+                color: AppColors.textPrimary,
+                fontSize: 22.sp,
+              ),
             ),
           ),
         ),
@@ -94,22 +98,25 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildCategories() {
-    return Obx(
-      () => Row(
-        children: List.generate(controller.categories.length, (index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index == controller.categories.length - 1
-                  ? 0
-                  : AppSpacing.sm.w,
-            ),
-            child: CategoryChip(
-              label: controller.categories[index],
-              selected: controller.selectedCategory.value == index,
-              onTap: () => controller.onCategorySelected(index),
-            ),
-          );
-        }),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Obx(
+        () => Row(
+          children: List.generate(controller.categories.length, (index) {
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index == controller.categories.length - 1
+                    ? 0
+                    : AppSpacing.sm.w,
+              ),
+              child: CategoryChip(
+                label: controller.categories[index],
+                selected: controller.selectedCategory.value == index,
+                onTap: () => controller.onCategorySelected(index),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

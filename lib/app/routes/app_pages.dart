@@ -8,6 +8,8 @@ import '../modules/campaign_detail/bindings/campaign_detail_binding.dart';
 import '../modules/campaign_detail/views/campaign_detail_view.dart';
 import '../modules/donation/bindings/donation_binding.dart';
 import '../modules/donation/views/donation_view.dart';
+import '../modules/donation_qris/bindings/donation_qris_binding.dart';
+import '../modules/donation_qris/views/donation_qris_view.dart';
 import '../modules/donation_success/bindings/donation_success_binding.dart';
 import '../modules/donation_success/views/donation_success_view.dart';
 import '../modules/payment_instruction/bindings/payment_instruction_binding.dart';
@@ -95,6 +97,11 @@ class AppPages {
       name: _Paths.DONATION,
       page: () => const DonationView(),
       binding: DonationBinding(),
+    ),
+    GetPage(
+      name: _Paths.DONATION_QRIS,
+      page: () => const DonationQrisView(),
+      binding: DonationQrisBinding(),
     ),
     GetPage(
       name: _Paths.PAYMENT_INSTRUCTION,

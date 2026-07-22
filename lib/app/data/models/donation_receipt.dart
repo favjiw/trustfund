@@ -1,6 +1,7 @@
 /// Immutable record of a submitted donation, passed through the payment ->
 /// success -> tracking flow.
 class DonationReceipt {
+  final String campaignId;
   final String campaignTitle;
   final String organizer;
   final String imageUrl;
@@ -12,7 +13,12 @@ class DonationReceipt {
   final String dateLabel;
   final String transactionHash;
 
+  /// Midtrans order id, used to fetch on-chain proof via
+  /// `GET /api/donations/{orderId}/status`. Empty for legacy/demo receipts.
+  final String orderId;
+
   const DonationReceipt({
+    required this.campaignId,
     required this.campaignTitle,
     required this.organizer,
     required this.imageUrl,
@@ -23,5 +29,6 @@ class DonationReceipt {
     required this.vaNumber,
     required this.dateLabel,
     required this.transactionHash,
+    this.orderId = '',
   });
 }

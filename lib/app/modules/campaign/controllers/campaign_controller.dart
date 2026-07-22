@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../../data/models/campaign_item.dart';
+import '../../../data/models/campaign_record.dart';
 import '../../../data/repositories/campaign_repository.dart';
 
 /// Ordering options for the Kampanye list.
@@ -19,11 +20,7 @@ class CampaignController extends GetxController {
   final RxBool hasError = false.obs;
   final RxList<CampaignItem> campaigns = <CampaignItem>[].obs;
 
-  final List<String> categories = const [
-    'Semua',
-    'Pendidikan',
-    'Infrastruktur',
-  ];
+  final List<String> categories = Campaign.filterCategories;
 
   /// Human-readable label for a sort option (used by the control and sheet).
   static String labelForSort(CampaignSort option) {

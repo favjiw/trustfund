@@ -22,6 +22,19 @@ class CampaignDetail {
   final List<RabItem> rabItems;
   final List<MilestoneItem> milestones;
 
+  /// On-chain id (e.g. "CMP-...") of the campaign, for the proof banner.
+  final String onChainId;
+
+  /// Blockchain explorer URL for the campaign's creation transaction. Empty
+  /// when the campaign has no on-chain record yet.
+  final String explorerUrl;
+
+  /// Whether the funding target has been reached.
+  final bool isTargetReached;
+
+  /// Whether the API still accepts donations; drives the donate button.
+  final bool canDonate;
+
   const CampaignDetail({
     required this.id,
     required this.imageUrl,
@@ -41,5 +54,9 @@ class CampaignDetail {
     required this.description,
     required this.rabItems,
     required this.milestones,
+    this.onChainId = '',
+    this.explorerUrl = '',
+    this.isTargetReached = false,
+    this.canDonate = true,
   });
 }

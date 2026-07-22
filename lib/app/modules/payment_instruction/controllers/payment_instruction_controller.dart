@@ -69,6 +69,7 @@ class PaymentInstructionController extends GetxController {
   void cancelDonation() => Get.back();
 
   DonationReceipt _fallbackReceipt() => const DonationReceipt(
+        campaignId: 'cmrkpwxez0001fci7ni7koeie',
         campaignTitle: 'Bantu Renovasi Sekolah Dasar di Pelosok NTT',
         organizer: 'Yayasan Senyum Anak',
         imageUrl:

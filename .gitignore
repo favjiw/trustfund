@@ -48,3 +48,8 @@ app.*.map.json
 android/key.properties
 *.jks
 *.keystore
+
+# Local API scratch files (spec dumps, sample responses)
+/api_spec*.json
+/api_spec*.txt
+/response.json
